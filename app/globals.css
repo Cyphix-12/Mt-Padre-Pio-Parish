@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 17, 59, 102;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: #FFFFFF;
+}
+
+/* Prevent content shift when scrollbar appears */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Custom scrollbar for sidebar */
+.bg-secondary::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bg-secondary::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.bg-secondary::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.bg-secondary::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Prevent text selection during touch interactions */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Improve touch targets for mobile/tablet */
+@media (max-width: 1024px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Disable sidebar collapse for tablet devices */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Hide desktop collapse button on tablet */
+  .sidebar button[aria-label*="Collapse"] {
+    display: none !important;
+  }
+  
+  /* Ensure sidebar stays expanded on tablet */
+  .sidebar {
+    width: 320px !important;
+    transform: none !important;
+  }
+}
+
+/* Gradient fallbacks */
+.bg-gradient-fallback {
+  background-color: rgb(var(--background-start-rgb));
+}
+
+/* Improve touch targets and interactions */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Focus styles */
+.focus-visible:focus {
+  outline: 2px solid rgb(var(--foreground-rgb));
+  outline-offset: 2px;
+}
+
+/* Content wrapper transitions */
+.content-wrapper {
+  will-change: margin-left;
+  transition: margin-left 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar transitions */
+.will-change-width {
+  will-change: width;
+}
+
+.will-change-transform {
+  will-change: transform;
+}
+
+/* Transition padding */
+.transition-padding {
+  transition: padding 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus styles for interactive elements */
+.focus-visible:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
+}
