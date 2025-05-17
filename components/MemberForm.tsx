@@ -12,7 +12,9 @@ interface MemberFormProps {
 export default function MemberForm({ onClose }: MemberFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+  [key: string]: string;
+}>({
     jina_first: '',
     jina_middle: '',
     jina_last: '',
