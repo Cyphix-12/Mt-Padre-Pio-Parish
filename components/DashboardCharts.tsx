@@ -42,10 +42,18 @@ export default function DashboardCharts() {
         .not('marriage_status', 'is', null);
 
       // Calculate baptism stats
-      const baptismStats = baptismData?.reduce((acc, curr) => {
-        curr.baptized === 'Yes' ? acc.baptized++ : acc.notBaptized++;
-        return acc;
-      }, { baptized: 0, notBaptized: 0 });
+      type BaptismRecord = {
+  baptized: string; // or boolean, depending on your data
+};
+
+const baptismStats = baptismData?.reduce(
+  (acc: { baptized: number; notBaptized: number }, curr: BaptismRecord) => {
+    curr.baptized === 'Yes' ? acc.baptized++ : acc.notBaptized++;
+    return acc;
+  },
+  { baptized: 0, notBaptized: 0 }
+);
+
 
       // Calculate confirmation stats
       const confirmationStats = confirmationData?.reduce((acc, curr) => {
