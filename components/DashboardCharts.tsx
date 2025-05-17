@@ -70,10 +70,18 @@ const confirmationStats = confirmationData?.reduce(
 
 
       // Calculate marriage stats
-      const marriageStats = marriageData?.reduce((acc, curr) => {
-        acc[curr.marriage_status.toLowerCase()]++;
-        return acc;
-      }, { married: 0, notmarried: 0, divorced: 0, widowed: 0, separated: 0 });
+    type MarriageStats = Record<MarriageStatus, number>;
+
+const marriageStats = marriageData?.reduce(
+  (acc: MarriageStats, curr: { marriage_status: string }) => {
+    const key = curr.marriage_status.toLowerCase() as MarriageStatus;
+    if (key in acc) {
+      acc[key]++;
+    }
+    return acc;
+  },
+  { married: 0, notmarried: 0, divorced: 0, widowed: 0, separated: 0 }
+);
 
       setSacramentStats({
         baptized: baptismStats?.baptized || 0,
