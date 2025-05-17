@@ -11,6 +11,17 @@ interface Role {
   permissions: Record<string, Record<string, boolean>>;
 }
 
+type Permission = {
+  create: boolean;
+  read: boolean;
+  update: boolean;
+  delete: boolean;
+};
+
+type RolePermissions = {
+  [resource: string]: Permission;
+};
+
 export default function RoleManagement() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [newRoleName, setNewRoleName] = useState('');
@@ -18,13 +29,13 @@ export default function RoleManagement() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const defaultPermissions = {
+  const defaultPermissions: RolePermissions = {
     users: { create: false, read: false, update: false, delete: false },
     roles: { create: false, read: false, update: false, delete: false },
     members: { create: false, read: false, update: false, delete: false }
   };
 
-  const [newRolePermissions, setNewRolePermissions] = useState(defaultPermissions);
+  const [newRolePermissions, setNewRolePermissions] = useState<RolePermissions>(defaultPermissions);
 
   useEffect(() => {
     fetchRoles();
@@ -36,7 +47,7 @@ export default function RoleManagement() {
         .from('roles')
         .select('id, name, description, permissions')
         .order('name');
-      
+
       if (error) throw error;
       setRoles(data || []);
     } catch (error) {
@@ -51,13 +62,11 @@ export default function RoleManagement() {
     setError(null);
 
     try {
-      const { error } = await supabase
-        .from('roles')
-        .insert({
-          name: newRoleName,
-          description: newRoleDescription,
-          permissions: newRolePermissions
-        });
+      const { error } = await supabase.from('roles').insert({
+        name: newRoleName,
+        description: newRoleDescription,
+        permissions: newRolePermissions
+      });
 
       if (error) throw error;
 
@@ -77,11 +86,7 @@ export default function RoleManagement() {
     if (!confirm('Are you sure you want to delete this role?')) return;
 
     try {
-      const { error } = await supabase
-        .from('roles')
-        .delete()
-        .eq('id', roleId);
-      
+      const { error } = await supabase.from('roles').delete().eq('id', roleId);
       if (error) throw error;
       await fetchRoles();
     } catch (error) {
@@ -90,24 +95,7 @@ export default function RoleManagement() {
     }
   }
 
-type Permission = {
-  create: boolean;
-  read: boolean;
-  update: boolean;
-  delete: boolean;
-};
-
-type RolePermissions = {
-  [resource: string]: Permission;
-};
-
-  export default function handlePermissionChange( {
-    const [newRolePermissions, setNewRolePermissions] = useState<RolePermissions>({});
-    
-    resource: string,
-    action: string,
-    checked: boolean
-  ) {
+  function handlePermissionChange(resource: string, action: string, checked: boolean) {
     setNewRolePermissions(prev => ({
       ...prev,
       [resource]: {
