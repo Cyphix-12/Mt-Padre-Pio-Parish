@@ -70,7 +70,11 @@ const confirmationStats = confirmationData?.reduce(
 
 
       // Calculate marriage stats
-    type MarriageStats = Record<MarriageStatus, number>;
+  // ✅ Define MarriageStatus first
+type MarriageStatus = 'married' | 'notmarried' | 'divorced' | 'widowed' | 'separated';
+
+// ✅ Then use it in MarriageStats
+type MarriageStats = Record<MarriageStatus, number>;
 
 const marriageStats = marriageData?.reduce(
   (acc: MarriageStats, curr: { marriage_status: string }) => {
