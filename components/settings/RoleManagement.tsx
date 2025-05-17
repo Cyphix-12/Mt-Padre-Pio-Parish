@@ -101,12 +101,8 @@ type RolePermissions = {
   [resource: string]: Permission;
 };
 
-  function handlePermissionChange(
+  export default function handlePermissionChange( {
     const [newRolePermissions, setNewRolePermissions] = useState<RolePermissions>({});
-  
-    resource: string,
-    action: string,
-    checked: boolean
     
     resource: string,
     action: string,
