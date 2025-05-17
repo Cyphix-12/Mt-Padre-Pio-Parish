@@ -56,10 +56,18 @@ const baptismStats = baptismData?.reduce(
 
 
       // Calculate confirmation stats
-      const confirmationStats = confirmationData?.reduce((acc, curr) => {
-        curr.confirmed === 'Yes' ? acc.confirmed++ : acc.notConfirmed++;
-        return acc;
-      }, { confirmed: 0, notConfirmed: 0 });
+     type ConfirmationRecord = {
+  confirmed: string;
+};
+
+const confirmationStats = confirmationData?.reduce(
+  (acc: { confirmed: number; notConfirmed: number }, curr: ConfirmationRecord) => {
+    curr.confirmed === 'Yes' ? acc.confirmed++ : acc.notConfirmed++;
+    return acc;
+  },
+  { confirmed: 0, notConfirmed: 0 }
+);
+
 
       // Calculate marriage stats
       const marriageStats = marriageData?.reduce((acc, curr) => {
