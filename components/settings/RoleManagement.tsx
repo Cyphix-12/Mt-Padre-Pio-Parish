@@ -90,8 +90,7 @@ export default function RoleManagement() {
     }
   }
 
-  function handlePermissionChange(
-    type Permission = {
+type Permission = {
   create: boolean;
   read: boolean;
   update: boolean;
@@ -101,7 +100,15 @@ export default function RoleManagement() {
 type RolePermissions = {
   [resource: string]: Permission;
 };
-   // resource: string,
+
+  function handlePermissionChange(
+    const [newRolePermissions, setNewRolePermissions] = useState<RolePermissions>({});
+  
+    resource: string,
+    action: string,
+    checked: boolean
+    
+    resource: string,
     action: string,
     checked: boolean
   ) {
