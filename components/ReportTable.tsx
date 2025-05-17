@@ -224,11 +224,13 @@ function ReportTable({ filters, searchQuery }: ReportTableProps) {
       </div>
     );
   }
-
+  
+ console.log('Current isAdmin state:', isAdmin);
+  
   return (
     <div className="bg-white rounded-3xl shadow-sm overflow-hidden max-w-full">
       <div className="overflow-x-auto">
-        {console.log('Current isAdmin state:', isAdmin), null}
+       
         {waumini.map((muumini) => (
           <div key={muumini.id} className="border-b border-gray-200 last:border-b-0">
             <div className="p-6">
