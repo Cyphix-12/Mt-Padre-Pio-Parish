@@ -91,9 +91,21 @@ export default function RoleManagement() {
   }
 
   function handlePermissionChange(
-    resource: string,
-    action: string,
-    checked: boolean
+    type Permission = {
+  create: boolean;
+  read: boolean;
+  update: boolean;
+  delete: boolean;
+};
+
+type RolePermissions = {
+  [resource: string]: Permission;
+  [action: string]: Permission;
+  [checked: boolean]: Permission;
+};
+   // resource: string,
+   // action: string,
+   // checked: boolean
   ) {
     setNewRolePermissions(prev => ({
       ...prev,
