@@ -44,10 +44,11 @@ export default function UserManagement() {
         .select('user_id, roles (name)')
         .order('user_id');
 
-      const usersWithRoles = users.map(user => ({
-        ...user,
-        role: userRoles?.find(ur => ur.user_id === user.id)?.roles?.name
-      }));
+      const usersWithRoles = users.map((user: any) => ({
+    ...user,
+    role: userRoles?.find(ur => ur.user_id === user.id)?.roles?.name
+  }));
+
 
       setUsers(usersWithRoles);
     } catch (error) {
