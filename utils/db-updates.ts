@@ -30,7 +30,7 @@ interface MemberUpdateData {
 
 export async function updateMemberData(data: MemberUpdateData): Promise<{ error: Error | null }> {
   try {
-    // Start with waumini table update to ensure member exists
+    // Ensure member exists in 'waumini' table
     const { error: memberError } = await supabase
       .from('waumini')
       .select('member_id')
@@ -39,10 +39,10 @@ export async function updateMemberData(data: MemberUpdateData): Promise<{ error:
 
     if (memberError) throw new Error('Member not found');
 
-    // Update baptism information if provided
+    // Update baptism info
     if (data.baptismInfo) {
       const { error: baptismError } = await supabase
-        .from('baptized') 
+        .from('baptized')
         .upsert({
           member_id: data.memberId,
           baptized: data.baptismInfo.baptized,
@@ -56,10 +56,10 @@ export async function updateMemberData(data: MemberUpdateData): Promise<{ error:
       if (baptismError) throw baptismError;
     }
 
-    // Update confirmation information if provided
+    // Update confirmation info
     if (data.confirmationInfo) {
       const { error: confirmationError } = await supabase
-        .from('confirmation') 
+        .from('confirmation')
         .upsert({
           member_id: data.memberId,
           confirmed: data.confirmationInfo.confirmed,
@@ -73,10 +73,10 @@ export async function updateMemberData(data: MemberUpdateData): Promise<{ error:
       if (confirmationError) throw confirmationError;
     }
 
-    // Update marriage information if provided
+    // Update marriage info
     if (data.marriageInfo) {
       const { error: marriageError } = await supabase
-        .from('married') 
+        .from('married')
         .upsert({
           member_id: data.memberId,
           marriage_status: data.marriageInfo.marriageStatus,
@@ -90,10 +90,10 @@ export async function updateMemberData(data: MemberUpdateData): Promise<{ error:
       if (marriageError) throw marriageError;
     }
 
-    // Update community information if provided
+    // Update community info
     if (data.communityInfo) {
       const { error: communityError } = await supabase
-        .from('community') 
+        .from('community')
         .upsert({
           member_id: data.memberId,
           community: data.communityInfo.community,
@@ -108,13 +108,11 @@ export async function updateMemberData(data: MemberUpdateData): Promise<{ error:
     }
 
     return { error: null };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error updating member data:', error);
-    // Return more detailed error information
-    const errorMessage = error instanceof Error ? 
-      error.message : 
-      'An error occurred while updating member data';
-    return { error: new Error(errorMessage) };
-    return { error: error instanceof Error ? error : new Error('Unknown error occurred') };
+    const message = error instanceof Error
+      ? error.message
+      : 'An unknown error occurred while updating member data';
+    return { error: new Error(message) };
   }
 }
