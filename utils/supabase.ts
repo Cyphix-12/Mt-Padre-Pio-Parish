@@ -17,7 +17,11 @@ export const supabase = createClient(
     auth: {
       autoRefreshToken: false,
       persistSession: true
-    },
-    debug: process.env.NODE_ENV === 'development'
+    }
   }
 );
+
+// Optional: Dev-only logging
+if (process.env.NODE_ENV === 'development') {
+  console.log('Supabase client initialized in development mode');
+}
