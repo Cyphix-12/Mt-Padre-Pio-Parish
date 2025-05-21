@@ -3,23 +3,43 @@ import { supabase } from './supabase';
 export const TOKEN_KEY = 'auth_token';
 export const ADMIN_ROLE = 'Admin';
 export const USER_ROLE_KEY = 'user_role';
-export const ROLE_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+export const ROLE_CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
+export const ROLES = {
+  ADMIN: 'Admin',
+  COMMUNITY_LEADER: 'Community Leader',
+  LEADER: 'Leader'
+} as const;
 
-interface RoleCacheEntry {
-  role: string;
+export type Role = typeof ROLES[keyof typeof ROLES];
+
+interface RoleCacheEntry<T = Role> {
+  role: T;
   timestamp: number;
+  permissions: RolePermissions;
+}
+
+export interface AuthSession {
+  user: {
+    id: string;
+    email: string;
+    role: Role;
+  };
+  token: string;
+  expiresAt: number;
 }
 
 // Store auth token in localStorage
 export function setAuthToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
+  document.cookie = `sb-token=${token}; path=/; max-age=86400; secure; samesite=strict`;
 }
 
 // Store user role in localStorage
-export function setUserRole(role: string) {
+export function setUserRole(role: Role, permissions: RolePermissions) {
   const cacheEntry: RoleCacheEntry = {
     role,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    permissions
   };
   localStorage.setItem(USER_ROLE_KEY, JSON.stringify(cacheEntry));
 }
@@ -60,6 +80,7 @@ export function getAuthToken() {
 // Remove auth token from localStorage
 export function removeAuthToken() {
   localStorage.removeItem(TOKEN_KEY);
+  document.cookie = 'sb-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
   clearUserRole();
 }
 

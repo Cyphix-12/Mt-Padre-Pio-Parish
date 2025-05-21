@@ -42,19 +42,31 @@ export default function LoginForm() {
       if (data?.session) {
         // Save the token
         setAuthToken(data.session.access_token);
-
+        
         // Fetch and store user role after successful login
         const { data: roleData } = await supabase
           .from('user_with_role')
-          .select('role_name')
+          .select('role_name, role_permissions')
           .eq('user_id', data.session.user.id)
           .single();
 
         if (roleData?.role_name) {
-          setUserRole(roleData.role_name);
+          setUserRole(roleData.role_name as Role, roleData.role_permissions);
+          
+          // Redirect based on role
+          switch (roleData.role_name) {
+            case ROLES.ADMIN:
+              router.push('/dashboard');
+              break;
+            case ROLES.COMMUNITY_LEADER:
+              router.push('/reports');
+              break;
+            default:
+              router.push('/');
+          }
+        } else {
+          router.push('/');
         }
-
-        router.push('/dashboard');
       }
 
     } catch (error) {

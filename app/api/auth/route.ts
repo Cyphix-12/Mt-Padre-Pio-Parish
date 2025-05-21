@@ -61,25 +61,40 @@ export async function GET(request: NextRequest) {
   const { data: { session }, error } = await supabase.auth.getSession();
 
   if (error || !session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ 
+      error: 'Unauthorized',
+      message: 'No valid session found'
+    }, { 
+      status: 401,
+      headers: {
+        'WWW-Authenticate': 'Bearer error="invalid_token"'
+      }
+    });
   }
 
   // Fetch user's role
   const { data: roleData, error: roleError } = await supabase
     .from('public.user_with_role')
-    .select('role_name')
+    .select('role_name, role_permissions')
     .eq('user_id', session.user.id)
     .maybeSingle();
 
   if (roleError) {
     console.error('Error fetching user role:', roleError);
-    return NextResponse.json({ error: 'Error fetching user role' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Server Error',
+      message: 'Failed to fetch user role'
+    }, { 
+      status: 500 
+    });
   }
 
   return NextResponse.json({ 
     userId: session.user.id,
     email: session.user.email,
-    role: roleData?.role_name || null
+    role: roleData?.role_name || null,
+    permissions: roleData?.role_permissions || null,
+    expiresAt: session.expires_at
   });
 }
 
