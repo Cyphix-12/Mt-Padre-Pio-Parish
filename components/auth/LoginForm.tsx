@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase';
-import { setAuthToken, setUserRole } from '@/utils/auth';
+import { setAuthToken } from '@/utils/auth';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -46,27 +46,15 @@ export default function LoginForm() {
         // Fetch and store user role after successful login
         const { data: roleData } = await supabase
           .from('user_with_role')
-          .select('role_name, role_permissions')
+          .select('role_name')
           .eq('user_id', data.session.user.id)
           .single();
-
+        
         if (roleData?.role_name) {
-          setUserRole(roleData.role_name as Role, roleData.role_permissions);
-          
-          // Redirect based on role
-          switch (roleData.role_name) {
-            case ROLES.ADMIN:
-              router.push('/dashboard');
-              break;
-            case ROLES.COMMUNITY_LEADER:
-              router.push('/reports');
-              break;
-            default:
-              router.push('/');
-          }
-        } else {
-          router.push('/');
+          localStorage.setItem('user_role', roleData.role_name);
         }
+        
+        router.push('/dashboard');
       }
 
     } catch (error) {

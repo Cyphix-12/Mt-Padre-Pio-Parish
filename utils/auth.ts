@@ -3,65 +3,20 @@ import { supabase } from './supabase';
 export const TOKEN_KEY = 'auth_token';
 export const ADMIN_ROLE = 'Admin';
 export const USER_ROLE_KEY = 'user_role';
-export const ROLE_CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
-export const ROLES = {
-  ADMIN: 'Admin',
-  COMMUNITY_LEADER: 'Community Leader',
-  LEADER: 'Leader'
-} as const;
-
-export type Role = typeof ROLES[keyof typeof ROLES];
-
-interface RoleCacheEntry<T = Role> {
-  role: T;
-  timestamp: number;
-  permissions: RolePermissions;
-}
-
-export interface AuthSession {
-  user: {
-    id: string;
-    email: string;
-    role: Role;
-  };
-  token: string;
-  expiresAt: number;
-}
 
 // Store auth token in localStorage
 export function setAuthToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
-  document.cookie = `sb-token=${token}; path=/; max-age=86400; secure; samesite=strict`;
 }
 
 // Store user role in localStorage
-export function setUserRole(role: Role, permissions: RolePermissions) {
-  const cacheEntry: RoleCacheEntry = {
-    role,
-    timestamp: Date.now(),
-    permissions
-  };
-  localStorage.setItem(USER_ROLE_KEY, JSON.stringify(cacheEntry));
+export function setUserRole(role: string) {
+  localStorage.setItem(USER_ROLE_KEY, role);
 }
 
 // Get user role from localStorage
-export function getUserRoleFromStorage(): RoleCacheEntry | null {
-  if (typeof window === 'undefined') return null;
-  
-  const cached = localStorage.getItem(USER_ROLE_KEY);
-  if (!cached) return null;
-  
-  try {
-    const entry: RoleCacheEntry = JSON.parse(cached);
-    if (Date.now() - entry.timestamp > ROLE_CACHE_DURATION) {
-      localStorage.removeItem(USER_ROLE_KEY);
-      return null;
-    }
-    return entry;
-  } catch {
-    localStorage.removeItem(USER_ROLE_KEY);
-    return null;
-  }
+export function getUserRoleFromStorage(): string | null {
+  return typeof window !== 'undefined' ? localStorage.getItem(USER_ROLE_KEY) : null;
 }
 
 // Clear user role from localStorage
@@ -80,7 +35,6 @@ export function getAuthToken() {
 // Remove auth token from localStorage
 export function removeAuthToken() {
   localStorage.removeItem(TOKEN_KEY);
-  document.cookie = 'sb-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
   clearUserRole();
 }
 
@@ -131,15 +85,15 @@ export async function getUserRole(): Promise<UserRole | null> {
 // Check if user has admin role
 export async function isAdmin(): Promise<boolean> {
   // First check localStorage for performance
-  const cachedRole = getUserRoleFromStorage();
-  if (cachedRole?.role === ADMIN_ROLE) {
+  const storedRole = getUserRoleFromStorage();
+  if (storedRole === ADMIN_ROLE) {
     return true;
   }
   
   // Fallback to API check if not in localStorage
   const role = await getUserRole();
   if (role?.role_name === ADMIN_ROLE) {
-    setUserRole(role.role_name);
+    setUserRole(ADMIN_ROLE);
     return true;
   }
   
