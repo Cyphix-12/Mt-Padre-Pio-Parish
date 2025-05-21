@@ -3,6 +3,12 @@ import { supabase } from './supabase';
 export const TOKEN_KEY = 'auth_token';
 export const ADMIN_ROLE = 'Admin';
 export const USER_ROLE_KEY = 'user_role';
+export const ROLE_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+interface RoleCacheEntry {
+  role: string;
+  timestamp: number;
+}
 
 // Store auth token in localStorage
 export function setAuthToken(token: string) {
@@ -11,12 +17,31 @@ export function setAuthToken(token: string) {
 
 // Store user role in localStorage
 export function setUserRole(role: string) {
-  localStorage.setItem(USER_ROLE_KEY, role);
+  const cacheEntry: RoleCacheEntry = {
+    role,
+    timestamp: Date.now()
+  };
+  localStorage.setItem(USER_ROLE_KEY, JSON.stringify(cacheEntry));
 }
 
 // Get user role from localStorage
-export function getUserRoleFromStorage(): string | null {
-  return typeof window !== 'undefined' ? localStorage.getItem(USER_ROLE_KEY) : null;
+export function getUserRoleFromStorage(): RoleCacheEntry | null {
+  if (typeof window === 'undefined') return null;
+  
+  const cached = localStorage.getItem(USER_ROLE_KEY);
+  if (!cached) return null;
+  
+  try {
+    const entry: RoleCacheEntry = JSON.parse(cached);
+    if (Date.now() - entry.timestamp > ROLE_CACHE_DURATION) {
+      localStorage.removeItem(USER_ROLE_KEY);
+      return null;
+    }
+    return entry;
+  } catch {
+    localStorage.removeItem(USER_ROLE_KEY);
+    return null;
+  }
 }
 
 // Clear user role from localStorage
@@ -85,15 +110,15 @@ export async function getUserRole(): Promise<UserRole | null> {
 // Check if user has admin role
 export async function isAdmin(): Promise<boolean> {
   // First check localStorage for performance
-  const storedRole = getUserRoleFromStorage();
-  if (storedRole === ADMIN_ROLE) {
+  const cachedRole = getUserRoleFromStorage();
+  if (cachedRole?.role === ADMIN_ROLE) {
     return true;
   }
   
   // Fallback to API check if not in localStorage
   const role = await getUserRole();
   if (role?.role_name === ADMIN_ROLE) {
-    setUserRole(ADMIN_ROLE);
+    setUserRole(role.role_name);
     return true;
   }
   
