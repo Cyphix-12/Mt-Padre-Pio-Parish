@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 
 export const TOKEN_KEY = 'auth_token';
+export const ADMIN_ROLE = 'Admin';
 
 // Store auth token in localStorage
 export function setAuthToken(token: string) {
@@ -40,15 +41,11 @@ type UserRole = {
 // Fetch user role and permissions from Supabase
 export async function getUserRole(): Promise<UserRole | null> {
   try {
-    console.log('Getting user role...');
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      console.log('No user found');
       return null;
     }
-
-    console.log('User found:', user.id);
 
     const { data: userRole, error } = await supabase
       .from('user_with_role')
@@ -61,12 +58,17 @@ export async function getUserRole(): Promise<UserRole | null> {
       return null;
     }
 
-    console.log('User role data:', userRole);
     return userRole || null;
   } catch (error) {
     console.error('Error fetching user role:', error);
     return null;
   }
+}
+
+// Check if user has admin role
+export async function isAdmin(): Promise<boolean> {
+  const role = await getUserRole();
+  return role?.role_name === ADMIN_ROLE;
 }
 
 // Check if user has a specific permission and action

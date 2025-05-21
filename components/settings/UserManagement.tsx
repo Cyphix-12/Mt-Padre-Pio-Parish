@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { fetchUsers } from '@/utils/users';
+import { isAdmin } from '@/utils/auth';
 import { supabase } from '@/utils/supabase';
 
 interface User {
@@ -16,14 +17,24 @@ interface User {
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
+  const [isAdminUser, setIsAdminUser] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadUsers();
-    fetchRoles();
+    const initializeComponent = async () => {
+      const adminStatus = await isAdmin();
+      setIsAdminUser(adminStatus);
+      
+      if (adminStatus) {
+        await loadUsers();
+        await fetchRoles();
+      }
+    };
+    
+    initializeComponent();
   }, []);
 
   async function loadUsers() {
@@ -143,6 +154,14 @@ export default function UserManagement() {
       console.error('Error updating user role:', error);
       setError(error instanceof Error ? error.message : 'Failed to update role');
     }
+  }
+
+  if (!isAdminUser) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-gray-600">You don't have permission to access this section.</p>
+      </div>
+    );
   }
 
   return (
