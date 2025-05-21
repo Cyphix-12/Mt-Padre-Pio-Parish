@@ -2,50 +2,53 @@
 
 import { useState, useEffect } from 'react';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { fetchUsers, type UserWithRole } from '@/utils/users';
-import { isAdmin } from '@/utils/auth';
+import { fetchUsers } from '@/utils/users';
 import { supabase } from '@/utils/supabase';
 
+interface User {
+  id: string;
+  email: string;
+  created_at: string;
+  role: string | null;
+  last_sign_in_at: string | null;
+}
+
 export default function UserManagement() {
-  const [users, setUsers] = useState<UserWithRole[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
-  const [isAdminUser, setIsAdminUser] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const initializeComponent = async () => {
-      setLoading(true);
-      setError(null);
-      
-      const adminStatus = await isAdmin();
-      
-      // If not admin, early return to avoid unnecessary fetches
-      if (!adminStatus) {
-        setIsAdminUser(false);
-        setLoading(false);
-        return;
-      }
-      
-      setIsAdminUser(adminStatus);
-      try {
-        await Promise.all([loadUsers(), fetchRoles()]);
-      } catch (error) {
-        console.error('Error initializing component:', error);
-        setError(error instanceof Error ? error.message : 'Failed to load data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    initializeComponent();
+    loadUsers();
+    fetchRoles();
   }, []);
 
   async function loadUsers() {
-    const fetchedUsers = await fetchUsers();
-    setUsers(fetchedUsers);
+    try {
+      setLoading(true);
+      const fetchedUsers = await fetchUsers();
+
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('user_id, roles (name)')
+        .order('user_id');
+
+
+      const usersWithRoles = fetchedUsers.map((user) => ({
+        ...user,
+        role: userRoles?.find(ur => ur.user_id === user.id)?.roles?.[0]?.name || null
+      }));
+
+      setUsers(usersWithRoles);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch users');
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function fetchRoles() {
@@ -142,16 +145,6 @@ export default function UserManagement() {
     }
   }
 
-  if (!isAdminUser) {
-    return (
-      <div className="p-6 text-center">
-        <p className="text-gray-600">
-          Access denied. Only administrators can view this section.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="border-b pb-4">
@@ -224,7 +217,7 @@ export default function UserManagement() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <select
                     value={roles.find(r => r.name === user.role)?.id || ''}
-                    onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                    onChange={(e) => handleRoleChange(user.id, e.target.value)} 
                     className="rounded-lg border border-gray-300 px-3 py-1.5 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                   >
                     <option value="">No Role</option>

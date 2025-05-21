@@ -40,21 +40,8 @@ export default function LoginForm() {
       }
       
       if (data?.session) {
+        // Save the token
         setAuthToken(data.session.access_token);
-        
-        // Fetch user role with permissions
-        const { data: roleData, error: roleError } = await supabase
-          .from('user_with_role')
-          .select('role_name, role_permissions')
-          .eq('user_id', data.session.user.id)
-          .single();
-        
-        if (roleError) {
-          console.error('Error fetching role:', roleError);
-        } else if (roleData?.role_name) {
-          setUserRole(roleData.role_name);
-        }
-        
         router.push('/dashboard');
       }
 

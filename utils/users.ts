@@ -3,14 +3,9 @@ import { supabase } from './supabase';
 export interface User {
   id: string;
   email: string;
-  role?: string;
   user_metadata: Record<string, any>;
   created_at: string;
   last_sign_in_at: string;
-}
-
-export interface UserWithRole extends User {
-  role: string | null;
 }
 
 export interface FetchUsersResponse {
@@ -18,7 +13,7 @@ export interface FetchUsersResponse {
   error?: string;
 }
 
-export async function fetchUsers(): Promise<UserWithRole[]> {
+export async function fetchUsers(): Promise<User[]> {
   try {
     // Get current session
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -26,6 +21,8 @@ export async function fetchUsers(): Promise<UserWithRole[]> {
     if (sessionError || !session) {
       throw new Error('No active session');
     }
+    
+    console.log('Session token obtained:', session.access_token.slice(0, 10) + '...');
 
     const response = await fetch('/api/list-users', {
       method: 'GET',
@@ -43,19 +40,8 @@ export async function fetchUsers(): Promise<UserWithRole[]> {
       throw new Error(data.error || `Failed to fetch users: ${response.status}`);
     }
 
-    // Fetch roles for all users
-    const { data: userRoles } = await supabase
-      .from('user_with_role')
-      .select('user_id, role_name')
-      .order('user_id');
-
-    // Combine user data with roles
-    const usersWithRoles = data.users.map(user => ({
-      ...user,
-      role: userRoles?.find(ur => ur.user_id === user.id)?.role_name || null
-    }));
-
-    return usersWithRoles;
+    console.log('Users fetched successfully:', data.users.length);
+    return data.users;
   } catch (error) {
     console.error('Error fetching users:', {
       message: error instanceof Error ? error.message : 'Unknown error',

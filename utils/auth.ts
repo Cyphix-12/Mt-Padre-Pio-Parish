@@ -1,27 +1,10 @@
 import { supabase } from './supabase';
 
 export const TOKEN_KEY = 'auth_token';
-export const ADMIN_ROLE = 'Admin';
-export const USER_ROLE_KEY = 'user_role';
 
 // Store auth token in localStorage
 export function setAuthToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
-}
-
-// Store user role in localStorage
-export function setUserRole(role: string) {
-  localStorage.setItem(USER_ROLE_KEY, role);
-}
-
-// Get user role from localStorage
-export function getUserRoleFromStorage(): string | null {
-  return typeof window !== 'undefined' ? localStorage.getItem(USER_ROLE_KEY) : null;
-}
-
-// Clear user role from localStorage
-export function clearUserRole() {
-  localStorage.removeItem(USER_ROLE_KEY);
 }
 
 // Retrieve auth token from localStorage
@@ -35,7 +18,6 @@ export function getAuthToken() {
 // Remove auth token from localStorage
 export function removeAuthToken() {
   localStorage.removeItem(TOKEN_KEY);
-  clearUserRole();
 }
 
 // Define types for role permissions
@@ -58,11 +40,15 @@ type UserRole = {
 // Fetch user role and permissions from Supabase
 export async function getUserRole(): Promise<UserRole | null> {
   try {
+    console.log('Getting user role...');
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
+      console.log('No user found');
       return null;
     }
+
+    console.log('User found:', user.id);
 
     const { data: userRole, error } = await supabase
       .from('user_with_role')
@@ -75,33 +61,11 @@ export async function getUserRole(): Promise<UserRole | null> {
       return null;
     }
 
+    console.log('User role data:', userRole);
     return userRole || null;
   } catch (error) {
     console.error('Error fetching user role:', error);
     return null;
-  }
-}
-
-// Check if user has admin role
-export async function isAdmin(): Promise<boolean> {
-  const storedRole = getUserRoleFromStorage();
-  
-  // Return early if we have a valid stored role
-  if (storedRole === ADMIN_ROLE) {
-    return true;
-  }
-  
-  try {
-    // Fallback to API check if not in localStorage
-    const role = await getUserRole();
-    if (role?.role_name === ADMIN_ROLE) {
-      setUserRole(ADMIN_ROLE); // Cache the role
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error('Error checking admin status:', error);
-    return false;
   }
 }
 
