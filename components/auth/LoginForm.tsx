@@ -42,6 +42,18 @@ export default function LoginForm() {
       if (data?.session) {
         // Save the token
         setAuthToken(data.session.access_token);
+        
+        // Fetch and store user role after successful login
+        const { data: roleData } = await supabase
+          .from('user_with_role')
+          .select('role_name')
+          .eq('user_id', data.session.user.id)
+          .single();
+        
+        if (roleData?.role_name) {
+          localStorage.setItem('user_role', roleData.role_name);
+        }
+        
         router.push('/dashboard');
       }
 

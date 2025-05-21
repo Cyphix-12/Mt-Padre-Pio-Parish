@@ -18,12 +18,15 @@ export default function UserManagement() {
   useEffect(() => {
     const initializeComponent = async () => {
       const adminStatus = await isAdmin();
-      setIsAdminUser(adminStatus);
       
-      if (adminStatus) {
-        await loadUsers();
-        await fetchRoles();
+      // If not admin, early return to avoid unnecessary fetches
+      if (!adminStatus) {
+        setIsAdminUser(false);
+        return;
       }
+      
+      setIsAdminUser(adminStatus);
+      await Promise.all([loadUsers(), fetchRoles()]);
     };
     
     initializeComponent();
@@ -139,7 +142,9 @@ export default function UserManagement() {
   if (!isAdminUser) {
     return (
       <div className="p-6 text-center">
-        <p className="text-gray-600">You don't have permission to access this section.</p>
+        <p className="text-gray-600">
+          Access denied. Only administrators can view this section.
+        </p>
       </div>
     );
   }

@@ -2,10 +2,26 @@ import { supabase } from './supabase';
 
 export const TOKEN_KEY = 'auth_token';
 export const ADMIN_ROLE = 'Admin';
+export const USER_ROLE_KEY = 'user_role';
 
 // Store auth token in localStorage
 export function setAuthToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
+}
+
+// Store user role in localStorage
+export function setUserRole(role: string) {
+  localStorage.setItem(USER_ROLE_KEY, role);
+}
+
+// Get user role from localStorage
+export function getUserRoleFromStorage(): string | null {
+  return typeof window !== 'undefined' ? localStorage.getItem(USER_ROLE_KEY) : null;
+}
+
+// Clear user role from localStorage
+export function clearUserRole() {
+  localStorage.removeItem(USER_ROLE_KEY);
 }
 
 // Retrieve auth token from localStorage
@@ -19,6 +35,7 @@ export function getAuthToken() {
 // Remove auth token from localStorage
 export function removeAuthToken() {
   localStorage.removeItem(TOKEN_KEY);
+  clearUserRole();
 }
 
 // Define types for role permissions
@@ -67,8 +84,20 @@ export async function getUserRole(): Promise<UserRole | null> {
 
 // Check if user has admin role
 export async function isAdmin(): Promise<boolean> {
+  // First check localStorage for performance
+  const storedRole = getUserRoleFromStorage();
+  if (storedRole === ADMIN_ROLE) {
+    return true;
+  }
+  
+  // Fallback to API check if not in localStorage
   const role = await getUserRole();
-  return role?.role_name === ADMIN_ROLE;
+  if (role?.role_name === ADMIN_ROLE) {
+    setUserRole(ADMIN_ROLE);
+    return true;
+  }
+  
+  return false;
 }
 
 // Check if user has a specific permission and action
