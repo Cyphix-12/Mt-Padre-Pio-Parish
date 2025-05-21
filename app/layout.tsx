@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
+import { UserProvider } from '@/context/UserContext';
 
 const poppins = Poppins({ 
   weight: ['400', '500', '600', '700'],
@@ -34,7 +35,9 @@ export default function RootLayout({
   return (
       <html lang="en">
         <body className={poppins.className}>
-          {children}
+          <UserProvider>
+            {children}
+          </UserProvider>
         </body>
       </html>
   );
