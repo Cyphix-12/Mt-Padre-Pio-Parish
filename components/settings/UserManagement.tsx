@@ -17,32 +17,35 @@ export default function UserManagement() {
 
   useEffect(() => {
     const initializeComponent = async () => {
+      setLoading(true);
+      setError(null);
+      
       const adminStatus = await isAdmin();
       
       // If not admin, early return to avoid unnecessary fetches
       if (!adminStatus) {
         setIsAdminUser(false);
+        setLoading(false);
         return;
       }
       
       setIsAdminUser(adminStatus);
-      await Promise.all([loadUsers(), fetchRoles()]);
+      try {
+        await Promise.all([loadUsers(), fetchRoles()]);
+      } catch (error) {
+        console.error('Error initializing component:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load data');
+      } finally {
+        setLoading(false);
+      }
     };
     
     initializeComponent();
   }, []);
 
   async function loadUsers() {
-    try {
-      setLoading(true);
-      const fetchedUsers = await fetchUsers();
-      setUsers(fetchedUsers);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch users');
-    } finally {
-      setLoading(false);
-    }
+    const fetchedUsers = await fetchUsers();
+    setUsers(fetchedUsers);
   }
 
   async function fetchRoles() {

@@ -84,20 +84,25 @@ export async function getUserRole(): Promise<UserRole | null> {
 
 // Check if user has admin role
 export async function isAdmin(): Promise<boolean> {
-  // First check localStorage for performance
   const storedRole = getUserRoleFromStorage();
+  
+  // Return early if we have a valid stored role
   if (storedRole === ADMIN_ROLE) {
     return true;
   }
   
-  // Fallback to API check if not in localStorage
-  const role = await getUserRole();
-  if (role?.role_name === ADMIN_ROLE) {
-    setUserRole(ADMIN_ROLE);
-    return true;
+  try {
+    // Fallback to API check if not in localStorage
+    const role = await getUserRole();
+    if (role?.role_name === ADMIN_ROLE) {
+      setUserRole(ADMIN_ROLE); // Cache the role
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
   }
-  
-  return false;
 }
 
 // Check if user has a specific permission and action
