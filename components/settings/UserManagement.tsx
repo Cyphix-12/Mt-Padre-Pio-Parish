@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/utils/supabase';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { fetchUsers } from '@/utils/users';
+import { supabase } from '@/utils/supabase';
 
 interface User {
   id: string;
   email: string;
   created_at: string;
-  role?: string;
+  role: string | null;
+  last_sign_in_at: string | null;
 }
 
 export default function UserManagement() {
@@ -20,41 +22,32 @@ export default function UserManagement() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchUsers();
+    loadUsers();
     fetchRoles();
   }, []);
 
-  async function fetchUsers() {
+  async function loadUsers() {
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/list-users', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const { users } = await response.json();
+      setLoading(true);
+      const fetchedUsers = await fetchUsers();
 
       const { data: userRoles } = await supabase
         .from('user_roles')
         .select('user_id, roles (name)')
         .order('user_id');
 
-     const usersWithRoles = users.map((user: any) => ({
-  ...user,
-  role: userRoles?.find(ur => ur.user_id === user.id)?.roles?.[0]?.name
-}));
 
-
+      const usersWithRoles = fetchedUsers.map((user) => ({
+        ...user,
+        role: userRoles?.find(ur => ur.user_id === user.id)?.roles?.[0]?.name || null
+      }));
 
       setUsers(usersWithRoles);
     } catch (error) {
       console.error('Error fetching users:', error);
       setError(error instanceof Error ? error.message : 'Failed to fetch users');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -95,7 +88,7 @@ export default function UserManagement() {
         throw new Error(data.error || 'Failed to create user');
       }
 
-      await fetchUsers();
+      await loadUsers();
       setNewUserEmail('');
       setNewUserPassword('');
     } catch (error) {
@@ -123,7 +116,7 @@ export default function UserManagement() {
         throw new Error(data.error || 'Failed to delete user');
       }
 
-      await fetchUsers();
+      await loadUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
       setError(error instanceof Error ? error.message : 'Failed to delete user');
@@ -145,7 +138,7 @@ export default function UserManagement() {
         throw new Error(data.error || 'Failed to update user role');
       }
 
-      await fetchUsers();
+      await loadUsers();
     } catch (error) {
       console.error('Error updating user role:', error);
       setError(error instanceof Error ? error.message : 'Failed to update role');
@@ -197,12 +190,15 @@ export default function UserManagement() {
       <div className="mt-6">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
-            <tr>
+            <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Email
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Role
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Last Sign In
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Created At
@@ -212,7 +208,7 @@ export default function UserManagement() {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-gray-200 text-sm">
             {users.map((user) => (
               <tr key={user.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -221,8 +217,8 @@ export default function UserManagement() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <select
                     value={roles.find(r => r.name === user.role)?.id || ''}
-                    onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                    className="rounded-lg border border-gray-300 px-2 py-1"
+                    onChange={(e) => handleRoleChange(user.id, e.target.value)} 
+                    className="rounded-lg border border-gray-300 px-3 py-1.5 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                   >
                     <option value="">No Role</option>
                     {roles.map((role) => (
@@ -231,6 +227,11 @@ export default function UserManagement() {
                       </option>
                     ))}
                   </select>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.last_sign_in_at
+                    ? new Date(user.last_sign_in_at).toLocaleDateString()
+                    : 'Never'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {new Date(user.created_at).toLocaleDateString()}
@@ -248,6 +249,11 @@ export default function UserManagement() {
           </tbody>
         </table>
       </div>
+      {loading && (
+        <div className="flex justify-center items-center py-8">
+          <div className="text-accent">Loading...</div>
+        </div>
+      )}
     </div>
   );
 }
