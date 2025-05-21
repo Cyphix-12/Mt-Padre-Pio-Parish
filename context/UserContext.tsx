@@ -29,6 +29,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const fetchUserWithRole = async () => {
     try {
       const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+      console.log('Supabase user:', supabaseUser);
 
       if (!supabaseUser) {
         setUser(null);
@@ -40,6 +41,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
         .select('role_name, role_permissions')
         .eq('user_id', supabaseUser.id)
         .single();
+
+      console.log('Role data:', roleData);
+      console.log('Role error:', roleError);
 
       if (roleError) {
         console.error('Error fetching user role:', roleError);
@@ -56,6 +60,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         });
       }
     } catch (error) {
+      console.error('Detailed error in fetchUserWithRole:', error);
       console.error('Error in fetchUserWithRole:', error);
       setUser(null);
     } finally {
