@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { fetchUsers } from '@/utils/users';
 import { supabase } from '@/utils/supabase';
-import { useUser } from '@/context/UserContext';
 
 interface User {
   id: string;
@@ -15,7 +14,6 @@ interface User {
 }
 
 export default function UserManagement() {
-  const { user: currentUser, refreshUser } = useUser();
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
   const [newUserEmail, setNewUserEmail] = useState('');
@@ -141,7 +139,6 @@ export default function UserManagement() {
       }
 
       await loadUsers();
-      await refreshUser();
     } catch (error) {
       console.error('Error updating user role:', error);
       setError(error instanceof Error ? error.message : 'Failed to update role');
@@ -193,7 +190,7 @@ export default function UserManagement() {
       <div className="mt-6">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
-            <tr>
+            <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Email
               </th>
@@ -220,8 +217,7 @@ export default function UserManagement() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <select
                     value={roles.find(r => r.name === user.role)?.id || ''}
-                    onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                    disabled={user.id === currentUser?.id}
+                    onChange={(e) => handleRoleChange(user.id, e.target.value)} 
                     className="rounded-lg border border-gray-300 px-3 py-1.5 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                   >
                     <option value="">No Role</option>
@@ -243,7 +239,6 @@ export default function UserManagement() {
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => handleDeleteUser(user.id)}
-                    disabled={user.id === currentUser?.id}
                     className="text-red-600 hover:text-red-900"
                   >
                     <TrashIcon className="w-5 h-5" />
