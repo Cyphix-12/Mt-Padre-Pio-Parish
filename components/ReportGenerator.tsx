@@ -514,22 +514,22 @@ const ReportGenerator = () => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Tables Selected:</span>
-                <span className="font-medium text-gray-600">{selectedTables.length}</span>
+                <span className="font-medium text-gray-900">{selectedTables.length}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Total Fields:</span>
-                <span className="font-medium text-gray-600">
+                <span className="font-medium text-gray-900">
                   {Object.values(selectedFields).reduce((sum, fields) => sum + fields.length, 0)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Filters Applied:</span>
-                <span className="font-medium text-gray-600">{filters.length}</span>
+                <span className="font-medium text-gray-900">{filters.length}</span>
               </div>
               {selectedTables.some(table => ['baptized', 'confirmation', 'married'].includes(table)) && (
                 <div className="flex justify-between">
                   <span className="text-gray-600">Sacraments:</span>
-                  <span className="font-medium">
+                  <span className="font-medium text-gray-900">
                     {selectedTables.filter(table => ['baptized', 'confirmation', 'married'].includes(table)).length}
                   </span>
                 </div>
