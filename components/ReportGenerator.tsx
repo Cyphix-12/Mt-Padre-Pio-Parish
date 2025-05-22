@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Download, FileText, Filter, Users, Church, Plus, X, Eye } from 'lucide-react';
+import { supabase } from '@/utils/supabase';
 
 const ReportGenerator = () => {
   const [selectedTables, setSelectedTables] = useState([]);
   const [selectedFields, setSelectedFields] = useState({});
   const [filters, setFilters] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [reportTitle, setReportTitle] = useState('Parish Report');
   const [reportType, setReportType] = useState('detailed');
   const [showPreview, setShowPreview] = useState(false);
@@ -108,83 +110,76 @@ const ReportGenerator = () => {
   };
 
   const generateReport = async () => {
-    // Mock report data - replace with actual API call
-    const reportData = {
-      title: reportTitle,
-      generatedDate: new Date().toLocaleDateString(),
-      tables: selectedTables,
-      fields: selectedFields,
-      filters,
-      data: generateMockData()
-    };
+    try {
+      setLoading(true);
+      const data = await fetchReportData();
+      
+      const reportData = {
+        title: reportTitle,
+        generatedDate: new Date().toLocaleDateString(),
+        tables: selectedTables,
+        fields: selectedFields,
+        filters,
+        data
+      };
 
-    if (showPreview) {
-      displayPreview(reportData);
-    } else {
-      downloadPDF(reportData);
+      if (showPreview) {
+        displayPreview(reportData);
+      } else {
+        downloadPDF(reportData);
+      }
+    } catch (error) {
+      console.error('Error generating report:', error);
+      alert('Failed to generate report. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const generateMockData = () => {
-    // This would be replaced with actual database query results
-    const mockData = {};
-    
-    if (selectedTables.includes('waumini')) {
-      mockData.waumini = [
-        { 
-          member_id: 1, 
-          name: 'John Mwangi', 
-          household: 'Mwangi Family', 
-          gender: 'Male', 
-          household_position: 'Head', 
-          birth_date: '1980-05-15', 
-          phone_no: '0712345678', 
-          occupation: 'Teacher', 
-          residence: 'Nairobi' 
-        },
-        { 
-          member_id: 2, 
-          name: 'Mary Wanjiku', 
-          household: 'Wanjiku Family', 
-          gender: 'Female', 
-          household_position: 'Head', 
-          birth_date: '1985-08-22', 
-          phone_no: '0723456789', 
-          occupation: 'Nurse', 
-          residence: 'Kiambu' 
+  const fetchReportData = async () => {
+    const data = {};
+
+    for (const table of selectedTables) {
+      let query = supabase.from(table).select(
+        (selectedFields[table] || []).join(',')
+      );
+
+      // Apply filters
+      filters.forEach(filter => {
+        if (filter.table === table && filter.field && filter.value) {
+          switch (filter.operator) {
+            case 'equals':
+              query = query.eq(filter.field, filter.value);
+              break;
+            case 'contains':
+              query = query.ilike(filter.field, `%${filter.value}%`);
+              break;
+            case 'greater':
+              query = query.gt(filter.field, filter.value);
+              break;
+            case 'less':
+              query = query.lt(filter.field, filter.value);
+              break;
+            case 'not_null':
+              query = query.not(filter.field, 'is', null);
+              break;
+            case 'is_null':
+              query = query.is(filter.field, null);
+              break;
+          }
         }
-      ];
+      });
+
+      const { data: tableData, error } = await query;
+      
+      if (error) {
+        throw error;
+      }
+
+      data[table] = tableData;
     }
-    
-    if (selectedTables.includes('community')) {
-      mockData.community = [
-        { member_id: 1, community: 'St. Peter', zone: 'Zone A', end_of_parish_membership: null, date_of_death: null },
-        { member_id: 2, community: 'St. Mary', zone: 'Zone B', end_of_parish_membership: null, date_of_death: null }
-      ];
-    }
-    
-    if (selectedTables.includes('baptized')) {
-      mockData.baptized = [
-        { member_id: 1, baptized: 'Yes', date_baptized: '1980-06-15', church_baptized: 'Mt. Padre Pio', baptism_no: 'BP001' },
-        { member_id: 2, baptized: 'Yes', date_baptized: '1985-09-10', church_baptized: 'St. Francis', baptism_no: 'BP002' }
-      ];
-    }
-    
-    if (selectedTables.includes('confirmation')) {
-      mockData.confirmation = [
-        { member_id: 1, confirmed: 'Yes', confirmation_date: '1995-05-20', church_confirmed: 'Mt. Padre Pio', confirmation_no: 'CF001' },
-        { member_id: 2, confirmed: 'Yes', confirmation_date: '2000-04-15', church_confirmed: 'St. Francis', confirmation_no: 'CF002' }
-      ];
-    }
-    
-    if (selectedTables.includes('married')) {
-      mockData.married = [
-        { member_id: 1, marriage_status: 'Married', marriage_date: '2005-12-10', church_married: 'Mt. Padre Pio', marriage_no: 'MR001' },
-        { member_id: 2, marriage_status: 'Single', marriage_date: null, church_married: null, marriage_no: null }
-      ];
-    }
-    
-    return mockData;
+
+    return data;
   };
 
   const downloadPDF = (reportData) => {
@@ -482,10 +477,11 @@ const ReportGenerator = () => {
                   setShowPreview(true);
                   generateReport();
                 }}
+                disabled={loading || selectedTables.length === 0}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
               >
                 <Eye className="w-5 h-5" />
-                Preview Report
+                {loading ? 'Loading...' : 'Preview Report'}
               </button>
               
               <button
@@ -494,10 +490,10 @@ const ReportGenerator = () => {
                   generateReport();
                 }}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                disabled={selectedTables.length === 0}
+                disabled={loading || selectedTables.length === 0}
               >
                 <Download className="w-5 h-5" />
-                Download PDF
+                {loading ? 'Loading...' : 'Download PDF'}
               </button>
             </div>
             
