@@ -413,7 +413,7 @@ const ReportGenerator = () => {
                   <select
                     value={filter.table}
                     onChange={(e) => updateFilter(index, 'table', e.target.value)}
-                    className="px-2 py-1 border border-gray-300 rounded text-sm text-gray-600"
+                    className="px-2 py-1 border border-gray-300 rounded text-sm text-gray-800"
                   >
                     <option value="">Select Table</option>
                     {selectedTables.map(table => (
@@ -424,7 +424,7 @@ const ReportGenerator = () => {
                   <select
                     value={filter.field}
                     onChange={(e) => updateFilter(index, 'field', e.target.value)}
-                    className="px-2 py-1 border border-gray-300 rounded text-sm"
+                    className="px-2 py-1 border border-gray-300 rounded text-sm text-gray-800"
                     disabled={!filter.table}
                   >
                     <option value="">Select Field</option>
@@ -436,7 +436,7 @@ const ReportGenerator = () => {
                   <select
                     value={filter.operator}
                     onChange={(e) => updateFilter(index, 'operator', e.target.value)}
-                    className="px-2 py-1 border border-gray-300 rounded text-sm"
+                    className="px-2 py-1 border border-gray-300 rounded text-sm text-gray-800"
                   >
                     <option value="equals">Equals</option>
                     <option value="contains">Contains</option>
