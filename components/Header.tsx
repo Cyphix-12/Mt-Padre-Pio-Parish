@@ -29,7 +29,7 @@ const roleConfig = {
   'Normal user': { 
     color: 'bg-green-500', 
     textColor: 'text-green-700',
-    bgColor: 'bg-green-50',
+    bgColor: 'bg-green-50', 
     icon: UserCheck,
     label: 'Member'
   }
