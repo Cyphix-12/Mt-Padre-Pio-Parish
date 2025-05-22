@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { FunnelIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { FunnelIcon, PlusIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
@@ -42,6 +42,13 @@ export default function ReportsPage() {
               </div>
 
               <SearchFilter onFiltersChange={handleFiltersChange} />
+              
+              <button 
+                className="flex items-center gap-2 px-6 py-2 text-white bg-accent rounded-full hover:bg-accent/90 shrink-0"
+              >
+                <DocumentTextIcon className="w-5 h-5" />
+                Create Report
+              </button>
               
               <button 
                 onClick={() => setShowForm(true)}
