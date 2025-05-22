@@ -167,7 +167,7 @@ const marriageStats = marriageData?.reduce(
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="w-full">
       <div className="max-w-7xl mx-auto">
         {/* Charts Grid */}
         <div className="flex flex-col md:flex-row gap-8">
