@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FunnelIcon, PlusIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
+import { getUserRole } from '@/utils/auth';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import ReportTable from '@/components/ReportTable';
@@ -14,7 +15,16 @@ export default function ReportsPage() {
   const [showForm, setShowForm] = useState(false);
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const role = await getUserRole();
+      setIsAdmin(role?.role_name === 'Admin');
+    };
+    checkAdminStatus();
+  }, []);
 
   const handleFiltersChange = useCallback((filters: Record<string, string[]>) => {
     setActiveFilters(filters);
@@ -44,14 +54,16 @@ export default function ReportsPage() {
               </div>
 
               <SearchFilter onFiltersChange={handleFiltersChange} />
-              
-              <button 
-                onClick={() => router.push('/reports/generate')}
-                className="flex items-center gap-2 px-6 py-2 text-white bg-accent rounded-full hover:bg-accent/90 shrink-0"
-              >
-                <DocumentTextIcon className="w-5 h-5" />
-                Create Report
-              </button>
+
+              {isAdmin && (
+                <button 
+                  onClick={() => router.push('/reports/generate')}
+                  className="flex items-center gap-2 px-6 py-2 text-white bg-accent rounded-full hover:bg-accent/90 shrink-0"
+                >
+                  <DocumentTextIcon className="w-5 h-5" />
+                  Create Report
+                </button>
+              )}
               
               <button 
                 onClick={() => setShowForm(true)}
