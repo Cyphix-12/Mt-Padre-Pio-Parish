@@ -23,7 +23,6 @@ export default function DashboardCharts() {
 
   const fetchStats = async () => {
     try {
-      setLoading(true);
       // Fetch baptism stats
       const { data: baptismData } = await supabase
         .from('baptized')
@@ -104,6 +103,7 @@ const marriageStats = marriageData?.reduce(
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
+    } finally {
       setLoading(false);
     }
   };
@@ -137,8 +137,8 @@ const marriageStats = marriageData?.reduce(
   }, []);
 
   const sacramentData = [
-    { name: 'Baptized & Confirmed', value: sacramentStats.baptized + sacramentStats.confirmed, color: '#10B981' },
-    { name: 'Baptized Only', value: sacramentStats.baptized - sacramentStats.confirmed, color: '#3B82F6' },
+    { name: 'Baptized & Confirmed', value: Math.min(sacramentStats.baptized, sacramentStats.confirmed), color: '#10B981' },
+    { name: 'Baptized Only', value: Math.max(0, sacramentStats.baptized - sacramentStats.confirmed), color: '#3B82F6' },
     { name: 'Neither', value: sacramentStats.notBaptized, color: '#EF4444' }
   ];
 
@@ -156,12 +156,24 @@ const marriageStats = marriageData?.reduce(
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mb-8">
-        <div className="bg-white p-6 rounded-3xl shadow-sm animate-pulse">
-          <div className="h-[300px] bg-gray-200 rounded-lg"></div>
+        <div className="bg-white p-6 rounded-xl shadow-lg animate-pulse">
+          <div className="h-6 w-48 bg-gray-200 rounded mb-2"></div>
+          <div className="h-4 w-64 bg-gray-100 rounded mb-6"></div>
+          <div className="h-80 bg-gray-200 rounded-lg"></div>
         </div>
-        <div className="bg-white p-6 rounded-3xl shadow-sm animate-pulse">
-          <div className="h-[300px] bg-gray-200 rounded-lg"></div>
+        <div className="bg-white p-6 rounded-xl shadow-lg animate-pulse">
+          <div className="h-6 w-48 bg-gray-200 rounded mb-2"></div>
+          <div className="h-4 w-64 bg-gray-100 rounded mb-6"></div>
+          <div className="h-80 bg-gray-200 rounded-lg"></div>
         </div>
+      </div>
+    );
+  }
+
+  if (!totalMembers && !totalMarital) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        No data available
       </div>
     );
   }
