@@ -560,7 +560,7 @@ const ReportGenerator = () => {
                   });
                   setReportTitle('Community Membership');
                 }}
-                className="w-full text-left px-3 py-2 text-sm bg-white rounded border hover:bg-gray-50"
+                className="w-full text-left px-3 py-2 text-sm bg-white rounded border hover:bg-gray-50 text-gray-900"
               >
                 🏘️ Community Report
               </button>
@@ -575,7 +575,7 @@ const ReportGenerator = () => {
                   });
                   setReportTitle('Sacraments Report');
                 }}
-                className="w-full text-left px-3 py-2 text-sm bg-white rounded border hover:bg-gray-50"
+                className="w-full text-left px-3 py-2 text-sm bg-white rounded border hover:bg-gray-50 text-gray-900"
               >
                 ⛪ Sacraments Summary
               </button>
@@ -585,7 +585,7 @@ const ReportGenerator = () => {
                   setSelectedFields({ waumini: ['name', 'birth_date', 'gender', 'occupation'] });
                   setReportTitle('Demographics Report');
                 }}
-                className="w-full text-left px-3 py-2 text-sm bg-white rounded border hover:bg-gray-50"
+                className="w-full text-left px-3 py-2 text-sm bg-white rounded border hover:bg-gray-50 text-gray-900"
               >
                 📊 Demographics
               </button>
