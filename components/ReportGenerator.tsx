@@ -413,7 +413,7 @@ const ReportGenerator = () => {
                   <select
                     value={filter.table}
                     onChange={(e) => updateFilter(index, 'table', e.target.value)}
-                    className="px-2 py-1 border border-gray-300 rounded text-sm"
+                    className="px-2 py-1 border border-gray-300 rounded text-sm text-gray-600"
                   >
                     <option value="">Select Table</option>
                     {selectedTables.map(table => (
