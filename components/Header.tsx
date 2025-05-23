@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; 
 import { ChevronDown, LogOut, Shield, Users, Crown, UserCheck } from 'lucide-react';
