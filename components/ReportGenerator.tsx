@@ -3,13 +3,14 @@ import { Download, FileText, Filter, Users, Church, Plus, X, Eye } from 'lucide-
 import { supabase } from '@/utils/supabase';
 
 const ReportGenerator = () => {
-  const [selectedTables, setSelectedTables] = useState([]);
-  const [selectedFields, setSelectedFields] = useState({});
-  const [filters, setFilters] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [reportTitle, setReportTitle] = useState('Parish Report');
-  const [reportType, setReportType] = useState('detailed');
-  const [showPreview, setShowPreview] = useState(false);
+  // Fix: Remove the duplicate declaration and use proper TypeScript types
+  const [selectedTables, setSelectedTables] = useState<string[]>([]);
+  const [selectedFields, setSelectedFields] = useState<{[key: string]: string[]}>({});
+  const [filters, setFilters] = useState<Array<{table: string, field: string, operator: string, value: string}>>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [reportTitle, setReportTitle] = useState<string>('Parish Report');
+  const [reportType, setReportType] = useState<string>('detailed');
+  const [showPreview, setShowPreview] = useState<boolean>(false);
 
   // Your actual database schema
   const databaseSchema = {
@@ -69,9 +70,8 @@ const ReportGenerator = () => {
     }
   };
 
-  const [selectedTables, setSelectedTables] = useState<string[]>([]);
-  
-  const handleTableSelection = (tableName) => {
+  // Fix: Add proper type annotation to the function parameter
+  const handleTableSelection = (tableName: string) => {
     if (selectedTables.includes(tableName)) {
       setSelectedTables(selectedTables.filter(t => t !== tableName));
       const newFields = { ...selectedFields };
@@ -82,7 +82,7 @@ const ReportGenerator = () => {
     }
   };
 
-  const handleFieldSelection = (tableName, fieldName) => {
+  const handleFieldSelection = (tableName: string, fieldName: string) => {
     const tableFields = selectedFields[tableName] || [];
     if (tableFields.includes(fieldName)) {
       setSelectedFields({
@@ -101,13 +101,13 @@ const ReportGenerator = () => {
     setFilters([...filters, { table: '', field: '', operator: 'equals', value: '' }]);
   };
 
-  const updateFilter = (index, key, value) => {
+  const updateFilter = (index: number, key: string, value: string) => {
     const newFilters = [...filters];
-    newFilters[index][key] = value;
+    newFilters[index][key as keyof typeof newFilters[0]] = value;
     setFilters(newFilters);
   };
 
-  const removeFilter = (index) => {
+  const removeFilter = (index: number) => {
     setFilters(filters.filter((_, i) => i !== index));
   };
 
@@ -139,7 +139,7 @@ const ReportGenerator = () => {
   };
 
   const fetchReportData = async () => {
-    const data = {};
+    const data: {[key: string]: any[]} = {};
 
     for (const table of selectedTables) {
       let query = supabase.from(table).select(
@@ -178,13 +178,13 @@ const ReportGenerator = () => {
         throw error;
       }
 
-      data[table] = tableData;
+      data[table] = tableData || [];
     }
 
     return data;
   };
 
-  const downloadPDF = (reportData) => {
+  const downloadPDF = (reportData: any) => {
     // Create HTML content for PDF generation
     const htmlContent = generateHTMLReport(reportData);
     
@@ -194,12 +194,14 @@ const ReportGenerator = () => {
     document.body.appendChild(iframe);
     
     const doc = iframe.contentDocument;
-    doc.open();
-    doc.write(htmlContent);
-    doc.close();
-    
-    // Print the iframe content
-    iframe.contentWindow.print();
+    if (doc) {
+      doc.open();
+      doc.write(htmlContent);
+      doc.close();
+      
+      // Print the iframe content
+      iframe.contentWindow?.print();
+    }
     
     // Clean up
     setTimeout(() => {
@@ -207,7 +209,7 @@ const ReportGenerator = () => {
     }, 1000);
   };
 
-  const generateHTMLReport = (reportData) => {
+  const generateHTMLReport = (reportData: any) => {
     return `
       <!DOCTYPE html>
       <html>
@@ -240,18 +242,18 @@ const ReportGenerator = () => {
         
         <div class="report-meta">
           <strong>Report Configuration:</strong><br>
-          Tables: ${reportData.tables.map(t => databaseSchema[t].label).join(', ')}<br>
+          Tables: ${reportData.tables.map((t: string) => databaseSchema[t as keyof typeof databaseSchema]?.label).join(', ')}<br>
           Filters Applied: ${reportData.filters.length}
         </div>
 
-        ${Object.entries(reportData.data).map(([tableName, data]) => `
+        ${Object.entries(reportData.data).map(([tableName, data]: [string, any[]]) => `
           <div class="section ${['baptized', 'confirmation', 'married'].includes(tableName) ? 'sacrament-section' : ''}">
-            <h3>${databaseSchema[tableName]?.label || tableName}</h3>
+            <h3>${databaseSchema[tableName as keyof typeof databaseSchema]?.label || tableName}</h3>
             <table>
               <thead>
                 <tr>
                   ${(selectedFields[tableName] || []).map(field => 
-                    `<th>${databaseSchema[tableName]?.fields[field] || field}</th>`
+                    `<th>${databaseSchema[tableName as keyof typeof databaseSchema]?.fields[field as keyof typeof databaseSchema[keyof typeof databaseSchema]['fields']] || field}</th>`
                   ).join('')}
                 </tr>
               </thead>
@@ -273,7 +275,7 @@ const ReportGenerator = () => {
         
         <div class="summary">
           <strong>Report Summary:</strong><br>
-          Total records processed: ${Object.values(reportData.data).reduce((sum, data) => sum + data.length, 0)}<br>
+          Total records processed: ${Object.values(reportData.data).reduce((sum: number, data: any) => sum + data.length, 0)}<br>
           Tables included: ${reportData.tables.length}<br>
           Generated by: Mt. Padre Pio Parish Management System
         </div>
@@ -282,10 +284,12 @@ const ReportGenerator = () => {
     `;
   };
 
-  const displayPreview = (reportData) => {
+  const displayPreview = (reportData: any) => {
     const previewWindow = window.open('', '_blank');
-    previewWindow.document.write(generateHTMLReport(reportData));
-    previewWindow.document.close();
+    if (previewWindow) {
+      previewWindow.document.write(generateHTMLReport(reportData));
+      previewWindow.document.close();
+    }
   };
 
   return (
@@ -414,7 +418,7 @@ const ReportGenerator = () => {
                   >
                     <option value="">Select Table</option>
                     {selectedTables.map(table => (
-                      <option key={table} value={table}>{databaseSchema[table].label}</option>
+                      <option key={table} value={table}>{databaseSchema[table as keyof typeof databaseSchema].label}</option>
                     ))}
                   </select>
                   
@@ -425,7 +429,7 @@ const ReportGenerator = () => {
                     disabled={!filter.table}
                   >
                     <option value="">Select Field</option>
-                    {filter.table && Object.entries(databaseSchema[filter.table].fields).map(([field, label]) => (
+                    {filter.table && Object.entries(databaseSchema[filter.table as keyof typeof databaseSchema].fields).map(([field, label]) => (
                       <option key={field} value={field}>{label}</option>
                     ))}
                   </select>
