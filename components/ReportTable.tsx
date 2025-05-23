@@ -83,7 +83,7 @@ function ReportTable({ filters, searchQuery }: ReportTableProps) {
     console.log('Fetching members with filters:', filters);
     fetchWaumini();
     checkAdminStatus();
-  }, [fetchWaumini, checkAdminStatus]); // Consider adding checkAdminStatus to dependencies
+  }, [fetchWaumini, checkAdminStatus, filters]); // Consider adding checkAdminStatus to dependencies
 
   const checkAdminStatus = async () => {
     console.log('Checking admin status...');
