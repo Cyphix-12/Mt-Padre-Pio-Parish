@@ -69,8 +69,9 @@ const ReportGenerator = () => {
     }
   };
 
+  const [selectedTables, setSelectedTables] = useState<string[]>([]);
   
-  const handleTableSelection = (tableName: string) => {
+  const handleTableSelection = (tableName) => {
     if (selectedTables.includes(tableName)) {
       setSelectedTables(selectedTables.filter(t => t !== tableName));
       const newFields = { ...selectedFields };
