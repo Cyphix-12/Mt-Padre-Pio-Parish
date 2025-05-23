@@ -104,14 +104,7 @@ export default function Header() {
           >
             <div className="w-8 h-8 bg-blue-300 rounded-full flex items-center justify-center text-blue-800 font-semibold text-sm">
               {currentUser.avatar ? (
-               // <img src={currentUser.avatar} alt="Avatar" className="w-8 h-8 rounded-full" />
-              <Image
-                src={currentUser.avatar}
-                alt="Avatar"
-                className="rounded-full"
-                width={8}
-                height={8}
-              />
+                <image src={currentUser.avatar} alt="Avatar" className="w-8 h-8 rounded-full" />
 
               ) : (
                 getInitials()
@@ -133,15 +126,7 @@ export default function Header() {
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-700 font-semibold">
                       {currentUser.avatar ? (
-                        //<img src={currentUser.avatar} alt="Avatar" className="w-12 h-12 rounded-full" />
-              <Image
-                  src={currentUser.avatar}
-                  alt="Avatar"
-                  className="rounded-full"
-                  width={12}
-                  height={12}
-                  
-              />
+                        <image src={currentUser.avatar} alt="Avatar" className="w-12 h-12 rounded-full" />
 
                       ) : (
                         getInitials()
