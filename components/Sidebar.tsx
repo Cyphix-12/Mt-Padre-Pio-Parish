@@ -6,6 +6,8 @@ import { usePathname } from 'next/navigation';
 import { HomeIcon, DocumentTextIcon, UserGroupIcon, UsersIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { Bars3Icon, XMarkIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { getUserRole } from '@/utils/auth';
+import Image from 'next/image';
+
 
 const adminMenuItems = [
   { name: 'Dashboard', icon: HomeIcon, href: '/' },
@@ -124,7 +126,7 @@ export default function Sidebar() {
 
           <div className={`bg-white rounded-lg ${isOpen ? 'p-4' : 'p-2'} mb-8 transition-padding duration-300`}>
             <div className={`flex items-center gap-3 ${isOpen ? '' : 'lg:justify-center'}`}>
-              <img src="/padre-pio.png" alt="Padre Pio" className="w-12 h-12" />
+              <image src="/padre-pio.png" alt="Padre Pio" className="w-12 h-12" />
               {isOpen && (
                 <div className="text-accent font-semibold">
                   Parokia ya<br />Mt. Padre Pio
