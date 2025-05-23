@@ -460,7 +460,7 @@ const ReportGenerator = () => {
               ))}
               
               {filters.length === 0 && (
-                <p className="text-gray-500 text-sm italic">No filters applied. Click "Add Filter" to add conditions.</p>
+                <p className="text-gray-500 text-sm italic">No filters applied. Click &quot;Add Filter&quot; to add conditions.</p>
               )}
             </div>
           </div>
