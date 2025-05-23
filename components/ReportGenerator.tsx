@@ -69,7 +69,7 @@ const ReportGenerator = () => {
     }
   };
 
-  const handleTableSelection = (tableName) => {
+  const handleTableSelection = (tableName: string) => {
     if (selectedTables.includes(tableName)) {
       setSelectedTables(selectedTables.filter(t => t !== tableName));
       const newFields = { ...selectedFields };
