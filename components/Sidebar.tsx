@@ -126,7 +126,7 @@ export default function Sidebar() {
 
           <div className={`bg-white rounded-lg ${isOpen ? 'p-4' : 'p-2'} mb-8 transition-padding duration-300`}>
             <div className={`flex items-center gap-3 ${isOpen ? '' : 'lg:justify-center'}`}>
-              <Image src="/padre-pio.png" alt="Padre Pio" className="w-12 h-12" />
+              <Img src="/padre-pio.png" alt="Padre Pio" className="w-12 h-12" />
               {isOpen && (
                 <div className="text-accent font-semibold">
                   Parokia ya<br />Mt. Padre Pio
