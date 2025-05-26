@@ -131,7 +131,7 @@ export default function Sidebar() {
               alt="Padre Pio" 
               width={200}
               height={200}
-              className="w-12 h-12" // This will override and give you 48x48px
+             // className="w-12 h-12" // This will override and give you 48x48px
             />
               
               {isOpen && (
