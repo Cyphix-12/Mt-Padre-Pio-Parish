@@ -129,8 +129,8 @@ export default function Sidebar() {
               <Image 
                 src="/padre-pio.png" 
                 alt="Padre Pio" 
-                width={12} 
-                height={12} 
+                width={48} 
+                height={48} 
               />
               
               {isOpen && (
