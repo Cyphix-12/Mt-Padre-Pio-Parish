@@ -197,7 +197,8 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
       const { error } = await supabase
         .from('waumini')
         .delete()
-        .eq('member_id', memberToDelete.id);
+        .eq('member_id', memberToDelete.id)
+        .single();
 
       if (error) throw error;
 
@@ -206,7 +207,7 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
       setMemberToDelete(null);
     } catch (error) {
       console.error('Error deleting member:', error);
-      alert('Failed to delete member');
+      alert('Failed to delete member: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setIsDeleting(false);
     }
