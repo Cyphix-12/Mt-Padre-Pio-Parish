@@ -127,7 +127,7 @@ export default function Sidebar() {
           <div className={`bg-white rounded-lg ${isOpen ? 'p-4' : 'p-2'} mb-8 transition-padding duration-300`}>
             <div className={`flex items-center gap-3 ${isOpen ? '' : 'lg:justify-center'}`}>
            <Image 
-              src="/padre-pio.png" 
+              src="/public/padre-pio.jpg" 
               alt="Padre Pio" 
               width={200}
               height={200}
