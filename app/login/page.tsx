@@ -7,7 +7,12 @@ export default function LoginPage() {
       <div className="max-w-md w-full px-6 py-8 bg-white">
         <div className="text-center mb-8">
           <div className="w-24 h-24 mx-auto mb-4 relative">
-            <Image src="/padre-pio.png" alt="Padre Pio" className="w-24 h-24 mx-auto mb-4" />
+            <Image 
+              src="/padre-pio.png" 
+              alt="Padre Pio" 
+              width={200}
+              height={200}
+              className="w-24 h-24 mx-auto mb-4" />
             
           </div>
           <h2 className="text-3xl font-bold text-accent">Welcome Back</h2>
