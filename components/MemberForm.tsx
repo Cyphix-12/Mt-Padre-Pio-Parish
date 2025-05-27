@@ -1,16 +1,9 @@
-'use client';
-
 import { useState } from 'react';
 import { X, User, MapPin, Heart, Calendar, Users } from 'lucide-react';
-import { supabase } from '@/utils/supabase';
 
-interface MemberFormProps {
-  onClose: () => void;
-}
-
-export default function MemberForm({ onClose }: MemberFormProps) {
+export default function MemberForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState(0);
   const [formData, setFormData] = useState({
     jina_first: '',
@@ -49,12 +42,12 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     { id: 4, title: 'Marriage & Membership', icon: Users, color: 'bg-pink-500' }
   ];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-
-    // Validate required selections
+    
+    // Validation logic (simplified for demo)
     const requiredFields = ['gender', 'residence', 'baptism', 'confirmation', 'marriage', 'membershipStatus'];
     const emptyFields = requiredFields.filter(field => formData[field] === 'select');
     
@@ -63,127 +56,15 @@ export default function MemberForm({ onClose }: MemberFormProps) {
       setIsSubmitting(false);
       return;
     }
-    
-    // Validate conditional requirements
-    if (formData.baptism === 'Baptized') {
-      if (!formData.baptismDate || !formData.baptismNumber || !formData.baptismChurch) {
-        setError('Please fill in all baptism details');
-        setIsSubmitting(false);
-        return;
-      }
-    }
-    
-    if (formData.confirmation === 'Confirmed') {
-      if (!formData.confirmationDate || !formData.confirmationNumber || !formData.confirmationChurch) {
-        setError('Please fill in all confirmation details');
-        setIsSubmitting(false);
-        return;
-      }
-    }
-    
-    if (['Married', 'Separated'].includes(formData.marriage)) {
-      if (!formData.marriageDate || !formData.marriageNumber || !formData.marriageChurch) {
-        setError('Please fill in all marriage details');
-        setIsSubmitting(false);
-        return;
-      }
-    }
-    
-    if (formData.membershipStatus === 'Inactive - Death' && !formData.endDate) {
-      setError('Please specify the date for inactive membership status');
+
+    // Simulate API call
+    setTimeout(() => {
       setIsSubmitting(false);
-      return;
-    }
-
-    try {  
-      // Step 1: Create the member record first
-      const { data: memberData, error: memberError } = await supabase
-        .from('waumini')
-        .insert([{
-          name: `${formData.jina_first} ${formData.jina_middle} ${formData.jina_last}`.trim(),
-          gender: formData.gender,
-          household: formData.kaya,
-          household_position: formData.nafasi_kaya,
-          birth_date: formData.tarehe_kuzaliwa,
-          phone_no: formData.phone,
-          occupation: formData.occupation,
-          residence: formData.residence
-        }])
-        .select()
-        .single();
-      
-      if (memberError) throw memberError;
-      if (!memberData) throw new Error('Failed to create member record');
-      
-      // Step 2: Create the community record
-      const { error: communityError } = await supabase 
-        .from('community')
-        .insert([{
-          member_id: memberData.member_id,
-          community: formData.jumuiya,
-          zone: formData.kanda,
-          end_of_parish_membership: formData.membershipStatus === 'Inactive - Death' ? formData.endDate : null,
-          date_of_death: formData.membershipStatus === 'Inactive - Death' ? formData.endDate : null
-        }]);
-      
-      if (communityError) throw communityError;
-      
-      // Step 3: Create baptism record if applicable 
-      if (formData.baptism === 'Baptized') {
-        const { error: baptismError } = await supabase
-          .from('baptized')
-          .insert([{
-            member_id: memberData.member_id,
-            baptized: 'Yes',
-            date_baptized: formData.baptismDate,
-            church_baptized: formData.baptismChurch,
-            baptism_no: formData.baptismNumber
-          }]);
-          
-        if (baptismError) throw baptismError;
-      }
-      
-      // Step 4: Create confirmation record if applicable 
-      if (formData.confirmation === 'Confirmed') {
-        const { error: confirmationError } = await supabase
-          .from('confirmation')
-          .insert([{
-            member_id: memberData.member_id,
-            confirmed: 'Yes',
-            confirmation_date: formData.confirmationDate,
-            church_confirmed: formData.confirmationChurch,
-            confirmation_no: formData.confirmationNumber
-          }]);
-          
-        if (confirmationError) throw confirmationError;
-      }
-      
-      // Step 5: Create marriage record if applicable 
-      if (formData.marriage !== 'Not Married') {
-        const { error: marriageError } = await supabase
-          .from('married')
-          .insert([{
-            member_id: memberData.member_id,
-            marriage_status: formData.marriage,
-            marriage_date: formData.marriageDate,
-            church_married: formData.marriageChurch,
-            marriage_no: formData.marriageNumber
-          }]);
-          
-        if (marriageError) throw marriageError;
-      }
-
-      onClose();
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred while saving the member';
-      setError(errorMessage);
-      console.error('Error adding member:', error);
-    } finally {
-      setIsSubmitting(false); 
-    }
+      alert('Member saved successfully!');
+    }, 2000);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -584,19 +465,24 @@ export default function MemberForm({ onClose }: MemberFormProps) {
 
   const renderSectionContent = () => {
     switch (activeSection) {
-      case 0: return renderPersonalInfo();
-      case 1: return renderCommunityInfo();
-      case 2: return renderBaptismInfo();
-      case 3: return renderConfirmationInfo();
-      case 4: return renderMarriageAndMembership();
-      default: return renderPersonalInfo();
+      case 0: 
+        return renderPersonalInfo();
+      case 1: 
+        return renderCommunityInfo();
+      case 2: 
+        return renderBaptismInfo();
+      case 3: 
+        return renderConfirmationInfo();
+      case 4: 
+        return renderMarriageAndMembership();
+      default: 
+        return renderPersonalInfo();
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black bg-opacity-50 overflow-auto">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl min-h-[90vh] flex overflow-hidden my-4">
-        
         {/* Sidebar Navigation */}
         <div className="w-80 bg-gradient-to-br from-slate-900 to-slate-800 p-6 flex flex-col max-h-screen overflow-y-auto">
           <div className="flex items-center justify-between mb-8">
@@ -604,10 +490,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
               <h2 className="text-xl font-bold text-white">Member Registration</h2>
               <p className="text-slate-300 text-sm mt-1">Complete all sections</p>
             </div>
-            <button 
-              onClick={onClose}
-              className="text-slate-400 hover:text-white transition-colors"
-            >
+            <button className="text-slate-400 hover:text-white transition-colors">
               <X size={24} />
             </button>
           </div>
@@ -672,9 +555,9 @@ export default function MemberForm({ onClose }: MemberFormProps) {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit}>
+            <div>
               {renderSectionContent()}
-            </form>
+            </div>
           </div>
 
           {/* Footer */}
@@ -691,3 +574,40 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             >
               Previous
             </button>
+            
+            <div className="flex gap-3">
+              <button
+                type="button"
+                className="px-6 py-3 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-all duration-200"
+              >
+                Cancel
+              </button>
+              
+              {activeSection === sections.length - 1 ? (
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className={`px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold transition-all duration-200 ${
+                    isSubmitting
+                      ? 'opacity-75 cursor-not-allowed'
+                      : 'hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 shadow-lg'
+                  }`}
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Member'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setActiveSection(Math.min(sections.length - 1, activeSection + 1))}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                >
+                  Next
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
