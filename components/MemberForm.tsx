@@ -591,13 +591,11 @@ export default function MemberForm({ onClose }: MemberFormProps) {
       case 4: return renderMarriageAndMembership();
       default: return renderPersonalInfo();
     }
- 
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black bg-opacity-50 overflow-auto">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl min-h-[90vh] flex overflow-hidden my-4">
-        );
-   };
         
         {/* Sidebar Navigation */}
         <div className="w-80 bg-gradient-to-br from-slate-900 to-slate-800 p-6 flex flex-col max-h-screen overflow-y-auto">
