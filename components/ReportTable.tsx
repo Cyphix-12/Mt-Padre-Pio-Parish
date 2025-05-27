@@ -6,7 +6,7 @@ import { supabase } from '@/utils/supabase';
 import { getUserRole } from '@/utils/auth';
 
 interface Member {
-  id: string;
+  member_id: string;
   name: string;
   gender: string;
   birth_date: string;
