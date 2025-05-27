@@ -8,7 +8,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <div className="w-24 h-24 mx-auto mb-4 relative">
             <Image 
-              src="/padre-pio.png" 
+              src="/padre-pio.jpg" 
               alt="Padre Pio" 
               width={200}
               height={200}
