@@ -596,6 +596,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black bg-opacity-50 overflow-auto">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl min-h-[90vh] flex overflow-hidden my-4">
+        );
    };
         
         {/* Sidebar Navigation */}
