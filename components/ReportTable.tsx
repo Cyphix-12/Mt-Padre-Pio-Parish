@@ -197,12 +197,12 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
       const { error } = await supabase
         .from('waumini')
         .delete()
-        .eq('member_id', memberToDelete.id)
+        .eq('member_id', memberToDelete.member_id)
         .single();
 
       if (error) throw error;
 
-      setMembers(prev => prev.filter(m => m.id !== memberToDelete.id));
+      setMembers(prev => prev.filter(m => m.member_id !== memberToDelete.member_id));
       setDeleteModalOpen(false);
       setMemberToDelete(null);
     } catch (error) {
@@ -313,7 +313,7 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
       </div>
 
       {members.map((member) => (
-        <div key={member.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
+        <div key={member.member_id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
           {/* Header */}
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-5">
             <div className="flex items-center justify-between">
