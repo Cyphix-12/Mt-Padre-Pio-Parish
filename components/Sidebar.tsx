@@ -126,13 +126,13 @@ export default function Sidebar() {
 
           <div className={`bg-white rounded-lg ${isOpen ? 'p-4' : 'p-2'} mb-8 transition-padding duration-300`}>
             <div className={`flex items-center gap-3 ${isOpen ? '' : 'lg:justify-center'}`}>
-           <Image 
-              src="/public/padre-pio.jpg" 
-              alt="Padre Pio" 
-              width={200}
-              height={200}
-            
-            />
+              <Image 
+                src="/padre-pio.jpg"
+                alt="Padre Pio"
+                width={48}
+                height={48}
+                className="w-12 h-12"
+              />
               
               {isOpen && (
                 <div className="text-accent font-semibold">
