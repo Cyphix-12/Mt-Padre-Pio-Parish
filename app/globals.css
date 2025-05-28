@@ -2,106 +2,122 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ================================
+   CSS CUSTOM PROPERTIES
+   ================================ */
 :root {
   --foreground-rgb: 17, 59, 102;
+  --background-start-rgb: 255, 255, 255;
+  --transition-duration: 300ms;
+  --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --border-radius: 0.5rem;
+  --scrollbar-width: 6px;
+  --touch-target-size: 44px;
+  --focus-outline-width: 2px;
+  --focus-outline-offset: 2px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
   }
+}
+
+/* ================================
+   BASE STYLES
+   ================================ */
+html {
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: #FFFFFF;
+  background: rgb(var(--background-start-rgb));
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Prevent content shift when scrollbar appears */
-html {
-  scrollbar-gutter: stable;
-}
-
-/* Custom scrollbar for sidebar */
+/* ================================
+   SCROLLBAR STYLES
+   ================================ */
 .bg-secondary::-webkit-scrollbar {
-  width: 6px;
+  width: var(--scrollbar-width);
 }
 
 .bg-secondary::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
+  border-radius: calc(var(--scrollbar-width) / 2);
 }
 
 .bg-secondary::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+  border-radius: calc(var(--scrollbar-width) / 2);
+  transition: background-color var(--transition-duration) var(--transition-easing);
 }
 
 .bg-secondary::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Prevent text selection during touch interactions */
+/* ================================
+   TOUCH & INTERACTION STYLES
+   ================================ */
 .touch-manipulation {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
 
-/* Smooth transitions */
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
-}
-
-/* Improve touch targets for mobile/tablet */
-@media (max-width: 1024px) {
-  .touch-target {
-    min-height: 44px;
-    min-width: 44px;
-  }
-}
-
-/* Disable sidebar collapse for tablet devices */
-@media (min-width: 768px) and (max-width: 1024px) {
-  /* Hide desktop collapse button on tablet */
-  .sidebar button[aria-label*="Collapse"] {
-    display: none !important;
-  }
-  
-  /* Ensure sidebar stays expanded on tablet */
-  .sidebar {
-    width: 320px !important;
-    transform: none !important;
-  }
-}
-
-/* Gradient fallbacks */
-.bg-gradient-fallback {
-  background-color: rgb(var(--background-start-rgb));
-}
-
-/* Improve touch targets and interactions */
 .touch-target {
-  min-height: 44px;
-  min-width: 44px;
+  min-height: var(--touch-target-size);
+  min-width: var(--touch-target-size);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Focus styles */
+/* ================================
+   FOCUS STYLES
+   ================================ */
 .focus-visible:focus {
-  outline: 2px solid rgb(var(--foreground-rgb));
-  outline-offset: 2px;
+  outline: var(--focus-outline-width) solid rgb(var(--foreground-rgb));
+  outline-offset: var(--focus-outline-offset);
+  border-radius: var(--border-radius);
 }
 
-/* Content wrapper transitions */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 
+    0 0 0 var(--focus-outline-width) rgba(255, 255, 255, 0.2),
+    0 0 0 calc(var(--focus-outline-width) + 2px) rgba(var(--foreground-rgb), 0.3);
+  border-radius: var(--border-radius);
+}
+
+/* ================================
+   TRANSITION UTILITIES
+   ================================ */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: var(--transition-easing);
+  transition-duration: var(--transition-duration);
+}
+
+.transition-padding {
+  transition: padding var(--transition-duration) var(--transition-easing);
+}
+
 .content-wrapper {
   will-change: margin-left;
-  transition: margin-left 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: margin-left var(--transition-duration) var(--transition-easing);
 }
 
-/* Sidebar transitions */
+/* Performance optimizations */
 .will-change-width {
   will-change: width;
 }
@@ -110,14 +126,85 @@ html {
   will-change: transform;
 }
 
-/* Transition padding */
-.transition-padding {
-  transition: padding 300ms cubic-bezier(0.4, 0, 0.2, 1);
+/* ================================
+   LAYOUT UTILITIES
+   ================================ */
+.bg-gradient-fallback {
+  background-color: rgb(var(--background-start-rgb));
 }
 
-/* Focus styles for interactive elements */
-.focus-visible:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-  border-radius: 0.5rem;
+/* ================================
+   RESPONSIVE BREAKPOINTS
+   ================================ */
+
+/* Mobile optimizations */
+@media (max-width: 767px) {
+  .touch-target {
+    min-height: calc(var(--touch-target-size) + 4px);
+    min-width: calc(var(--touch-target-size) + 4px);
+  }
+}
+
+/* Tablet-specific styles */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Enhanced touch targets for tablet */
+  .touch-target {
+    min-height: var(--touch-target-size);
+    min-width: var(--touch-target-size);
+  }
+  
+  /* Sidebar behavior on tablets */
+  .sidebar button[aria-label*="Collapse"] {
+    display: none !important;
+  }
+  
+  .sidebar {
+    width: 320px !important;
+    transform: none !important;
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1025px) {
+  .touch-target:hover {
+    transform: translateY(-1px);
+    transition: transform 150ms var(--transition-easing);
+  }
+}
+
+/* ================================
+   ACCESSIBILITY ENHANCEMENTS
+   ================================ */
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .focus-visible:focus {
+    outline-width: 3px;
+    outline-color: currentColor;
+  }
+}
+
+/* Print styles */
+@media print {
+  .sidebar,
+  .touch-target,
+  button {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
 }
