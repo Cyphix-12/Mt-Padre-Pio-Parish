@@ -207,6 +207,7 @@ export default function Sidebar() {
                 </Link>
               );
             })}
+            ))}
           </nav>
 
           {/* Enhanced Footer Section */}
