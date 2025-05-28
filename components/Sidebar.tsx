@@ -3,34 +3,33 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HomeIcon, DocumentTextIcon, UserGroupIcon, UsersIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
-import { Bars3Icon, XMarkIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
+import { Home, FileText, Users, UserCheck, Settings, Menu, X, ChevronLeft } from 'lucide-react';
 import { getUserRole } from '@/utils/auth';
 import Image from 'next/image';
 
-
 const adminMenuItems = [
-  { name: 'Dashboard', icon: HomeIcon, href: '/' },
-  { name: 'Report', icon: DocumentTextIcon, href: '/reports' },
-  { name: 'Leaders', icon: UserGroupIcon, href: '/leaders' },
-  { name: 'Zone & Community', icon: UsersIcon, href: '/zones' },
-  { name: 'Settings', icon: Cog6ToothIcon, href: '/settings' },
+  { name: 'Dashboard', icon: Home, href: '/', badge: null },
+  { name: 'Report', icon: FileText, href: '/reports', badge: '12' },
+  { name: 'Leaders', icon: UserCheck, href: '/leaders', badge: null },
+  { name: 'Zone & Community', icon: Users, href: '/zones', badge: '3' },
+  { name: 'Settings', icon: Settings, href: '/settings', badge: null },
 ];
 
 const userMenuItems = [
-  { name: 'Dashboard', icon: HomeIcon, href: '/' },
-  { name: 'Report', icon: DocumentTextIcon, href: '/reports' },
-  { name: 'Leaders', icon: UserGroupIcon, href: '/leaders' },
-  { name: 'Zone & Community', icon: UsersIcon, href: '/zones' },
+  { name: 'Dashboard', icon: Home, href: '/', badge: null },
+  { name: 'Report', icon: FileText, href: '/reports', badge: '5' },
+  { name: 'Leaders', icon: UserCheck, href: '/leaders', badge: null },
+  { name: 'Zone & Community', icon: Users, href: '/zones', badge: null },
 ];
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState('Admin');
+  const [isHovered, setIsHovered] = useState(false);
+  const [currentPath, setCurrentPath] = useState('/');
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
 
   useEffect(() => {
     const checkUserRole = async () => {
@@ -49,20 +48,11 @@ export default function Sidebar() {
     setIsMobile(width < 768);
     setIsTablet(width >= 768 && width < 1024);
     if (width >= 1024) {
-      // Preserve desktop state
-      const storedState = localStorage.getItem('sidebarOpen');
-      setIsOpen(storedState === null ? true : storedState === 'true');
+      setIsOpen(true);
     } else {
       setIsOpen(width >= 768);
     }
   }, []);
-
-  // Handle desktop sidebar state persistence
-  useEffect(() => {
-    if (!isMobile && !isTablet) {
-      localStorage.setItem('sidebarOpen', isOpen.toString());
-    }
-  }, [isOpen, isMobile, isTablet]);
 
   useEffect(() => {
     checkScreenSize();
@@ -70,95 +60,184 @@ export default function Sidebar() {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, [checkScreenSize]);
 
-  // Close sidebar on mobile when route changes
-  useEffect(() => {
-    if (isMobile) {
-      setIsOpen(false);
-    }
-  }, [pathname, isMobile]);
+  const shouldShowExpanded = isOpen || (!isMobile && isHovered);
 
   return (
     <>
       {/* Mobile Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-[60] p-3 rounded-lg bg-secondary text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 touch-manipulation md:hidden"
+        className="fixed top-4 left-4 z-[60] p-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 transform hover:scale-105 transition-all duration-200 md:hidden"
         aria-label={isOpen ? 'Close menu' : 'Open menu'}
       >
-        {isOpen ? (
-          <XMarkIcon className="w-6 h-6" />
-        ) : (
-          <Bars3Icon className="w-6 h-6" />
-        )}
+        <div className="relative">
+          {isOpen ? (
+            <X className="w-6 h-6 transform transition-transform duration-300" />
+          ) : (
+            <Menu className="w-6 h-6 transform transition-transform duration-300" />
+          )}
+        </div>
       </button>
 
-      {/* Overlay for mobile */}
+      {/* Enhanced Overlay */}
       {isOpen && (isMobile || isTablet) && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 backdrop-blur-sm touch-manipulation"
+          className="fixed inset-0 bg-gradient-to-br from-black/50 to-black/30 z-50 transition-all duration-300"
           onClick={() => setIsOpen(false)}
           aria-hidden="true"
         />
       )}
 
-      {/* Sidebar */}
+      {/* Enhanced Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed lg:sticky top-0 left-0 z-[55] h-screen overflow-y-auto bg-secondary text-white transform transition-all duration-300 ease-in-out will-change-transform will-change-width ${
+        onMouseEnter={() => !isMobile && setIsHovered(true)}
+        onMouseLeave={() => !isMobile && setIsHovered(false)}
+        className={`fixed lg:sticky top-0 left-0 z-[55] h-screen overflow-hidden bg-gradient-to-b from-blue-600 via-blue-700 to-blue-800 text-white transform transition-all duration-300 ease-out will-change-transform shadow-2xl border-r border-blue-500/30 ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } ${
-          isTablet ? 'w-[320px]' : isOpen ? 'w-[280px]' : 'lg:w-20'
+          isTablet ? 'w-[320px]' : shouldShowExpanded ? 'w-[280px]' : 'lg:w-20'
         }`}
       >
-        <div className="p-4 min-h-max flex flex-col">
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent opacity-50" />
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/10 to-transparent" />
+        
+        <div className="relative p-4 min-h-full flex flex-col overflow-y-auto">
           {/* Tablet/Desktop Toggle Button */}
           {!isMobile && (
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="absolute right-2 top-2 p-2 rounded-lg hover:bg-white/10 transition-colors hidden lg:flex items-center justify-center touch-manipulation focus:outline-none focus:ring-2 focus:ring-white/20"
+              className="absolute right-3 top-3 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200 hidden lg:flex items-center justify-center border border-white/10 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 transform hover:scale-105"
               aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
             >
-              <ChevronLeftIcon 
-                className={`w-5 h-5 transition-transform duration-300 ${isOpen ? '' : 'rotate-180'}`}
+              <ChevronLeft 
+                className={`w-4 h-4 transition-transform duration-300 ${isOpen ? '' : 'rotate-180'}`}
               />
             </button>
           )}
 
-          <div className={`bg-white rounded-lg ${isOpen ? 'p-4' : 'p-2'} mb-8 transition-padding duration-300`}>
-            <div className={`flex items-center gap-3 ${isOpen ? '' : 'lg:justify-center'}`}>
-              <Image 
-                src="/padre-pio.jpg"
-                alt="Padre Pio"
-                width={48}
-                height={48}
-                className="w-12 h-12"
-              />
-              
-              {isOpen && (
-                <div className="text-accent font-semibold">
-                  Parokia ya<br />Mt. Padre Pio
+          {/* Enhanced Logo Section */}
+          <div className={`relative bg-gradient-to-r from-white to-gray-50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${shouldShowExpanded ? 'p-6' : 'p-3'} mb-8 transform hover:scale-[1.02] border border-gray-200/50`}>
+            <div className={`flex items-center gap-4 ${shouldShowExpanded ? '' : 'lg:justify-center'}`}>
+              <div className="relative">
+                <div 
+                  className={`rounded-full shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold ${shouldShowExpanded ? 'w-12 h-12 text-lg' : 'w-10 h-10 text-sm'}`}
+                >
+                  PP
+                </div>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500/20 to-transparent" />
+              </div>
+              {shouldShowExpanded && (
+                <div className="text-slate-800 font-bold text-sm leading-tight animate-fade-in">
+                  <div className="text-blue-700">Parokia ya</div>
+                  <div className="text-slate-700">Mt. Padre Pio</div>
                 </div>
               )}
             </div>
           </div>
           
-          <nav className="space-y-2 flex-1">
-            {menuItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-4 rounded-lg hover:bg-white/20 transition-colors hover:text-white touch-manipulation focus:outline-none focus:ring-2 focus:ring-white/20 ${
-                  pathname === item.href ? 'bg-white/10' : ''
-                } ${isOpen ? '' : 'lg:justify-center lg:px-2'}`}
-                title={isOpen ? undefined : item.name}
-              >
-                <item.icon className="w-6 h-6 flex-shrink-0" />
-                {isOpen && <span>{item.name}</span>}
-              </Link>
+          {/* Enhanced Navigation */}
+          <nav className="space-y-3 flex-1">
+            {menuItems.map((item, index) => {
+              const isActive = currentPath === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setCurrentPath(item.href)}
+                  className={`group relative flex items-center w-full gap-4 px-4 py-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/50 ${
+                    isActive 
+                      ? 'bg-white text-blue-700 shadow-lg font-semibold' 
+                      : 'hover:bg-white/10 hover:shadow-md hover:text-white text-blue-100'
+                  } ${shouldShowExpanded ? '' : 'lg:justify-center lg:px-3'}`}
+                  title={shouldShowExpanded ? undefined : item.name}
+                >
+                  {/* Active indicator */}
+                  {isActive && (
+                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-blue-700 rounded-r-full shadow-lg" />
+                  )}
+                  
+                  {/* Icon with enhanced styling */}
+                  <div className="relative">
+                    <item.icon className={`flex-shrink-0 transition-all duration-300 ${
+                      isActive ? 'w-6 h-6 text-blue-700' : 'w-6 h-6 text-blue-200 group-hover:text-white'
+                    }`} />
+                    {isActive && (
+                      <div className="absolute inset-0 rounded-lg bg-blue-100/20" />
+                    )}
+                  </div>
+                  
+                  {/* Text with fade animation */}
+                  {shouldShowExpanded && (
+                    <div className="flex items-center justify-between flex-1 animate-fade-in">
+                      <span className={`font-medium transition-colors duration-300 ${
+                        isActive ? 'text-blue-700' : 'text-blue-100 group-hover:text-white'
+                      }`}>
+                        {item.name}
+                      </span>
+                      
+                      {/* Badge */}
+                      {item.badge && (
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full transition-all duration-300 ${
+                          isActive 
+                            ? 'bg-blue-100 text-blue-700' 
+                            : 'bg-white/20 text-white group-hover:bg-white/30'
+                        }`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Tooltip for collapsed state */}
+                  {!shouldShowExpanded && !isMobile && (
+                    <div className="absolute left-full ml-2 px-3 py-2 bg-blue-800 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 border border-blue-600">
+                      {item.name}
+                      {item.badge && (
+                        <span className="ml-2 px-1.5 py-0.5 bg-white/20 text-xs rounded-full">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Hover effect overlay */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </Link>
+              );
+            })}
             ))}
           </nav>
+
+          {/* Enhanced Footer Section */}
+          {shouldShowExpanded && (
+            <div className="mt-8 pt-6 border-t border-white/20 animate-fade-in">
+              <div className="flex items-center gap-3 px-2 py-3 rounded-lg bg-white/10 border border-white/20">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
+                <span className="text-sm text-blue-100 font-medium">System Online</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+      
+      <style jsx>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out forwards;
+        }
+      `}</style>
     </>
   );
 }
