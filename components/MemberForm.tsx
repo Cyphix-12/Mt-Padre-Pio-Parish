@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { X, User, MapPin, Heart, Calendar, Users } from 'lucide-react';
 
-export default function MemberForm() {
+interface MemberFormProps {
+  onClose: () => void;
+}
+
+export default function MemberForm({ onClose }: MemberFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState(0);
@@ -490,7 +494,10 @@ export default function MemberForm() {
               <h2 className="text-xl font-bold text-white">Member Registration</h2>
               <p className="text-slate-300 text-sm mt-1">Complete all sections</p>
             </div>
-            <button className="text-slate-400 hover:text-white transition-colors">
+            <button 
+              onClick={onClose}
+              className="text-slate-400 hover:text-white transition-colors"
+            >
               <X size={24} />
             </button>
           </div>
@@ -578,6 +585,7 @@ export default function MemberForm() {
             <div className="flex gap-3">
               <button
                 type="button"
+                onClick={onClose}
                 className="px-6 py-3 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-all duration-200"
               >
                 Cancel
