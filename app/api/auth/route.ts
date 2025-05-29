@@ -48,6 +48,8 @@ export async function GET(request: NextRequest) {
   }
 
   const ip = request.ip ?? request.headers.get('x-forwarded-for') ?? 'unknown'
+  
+  // Initialize supabase client within request scope
   const supabase = createRouteHandlerClient({ cookies });
 
   // Rate limiting
@@ -103,6 +105,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Initialize supabase client within request scope
   const supabase = createRouteHandlerClient({ cookies });
 
   if (!checkRateLimit(ip)) {
