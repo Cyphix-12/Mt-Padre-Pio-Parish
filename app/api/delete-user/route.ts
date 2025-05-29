@@ -13,7 +13,7 @@ const adminClient = createClient(
 export async function POST(req: NextRequest) {
   try {
     // Initialize supabase client within request scope
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = createRouteHandlerClient({ cookies: () => cookies() });
     const { data: { session }, error: authError } = await supabase.auth.getSession();
 
     if (authError || !session) {

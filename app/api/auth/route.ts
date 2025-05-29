@@ -3,7 +3,7 @@ import { type NextRequest } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
-const ALLOWED_METHODS = ['GET', 'POST'];
+const ALLOWED_METHODS = ['GET', 'POST', 'OPTIONS'];
 
 const rateLimit = new Map<string, { count: number; timestamp: number }>()
 const MAX_REQUESTS = 5
@@ -39,6 +39,18 @@ function checkRateLimit(ip: string): boolean {
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   
+  // Handle CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      }
+    });
+  }
+
   // Validate request method
   if (!validateMethod(request.method)) {
     return NextResponse.json(
@@ -50,7 +62,7 @@ export async function GET(request: NextRequest) {
   const ip = request.ip ?? request.headers.get('x-forwarded-for') ?? 'unknown'
   
   // Initialize supabase client within request scope
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = createRouteHandlerClient({ cookies: () => cookies() });
 
   // Rate limiting
   if (!checkRateLimit(ip)) {
@@ -106,7 +118,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Initialize supabase client within request scope
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = createRouteHandlerClient({ cookies: () => cookies() });
 
   if (!checkRateLimit(ip)) {
     return NextResponse.json(
