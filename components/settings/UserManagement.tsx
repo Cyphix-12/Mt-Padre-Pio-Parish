@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { PlusIcon, TrashIcon, UsersIcon, UserIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import { fetchUsers } from '@/utils/users';
 import { supabase } from '@/utils/supabase';
+import { getUserRole } from '@/utils/auth';
 
 interface User {
   id: string;
@@ -21,11 +22,18 @@ export default function UserManagement() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     loadUsers();
     fetchRoles();
+    checkAdminStatus();
   }, []);
+
+  async function checkAdminStatus() {
+    const role = await getUserRole();
+    setIsAdmin(role?.role_name === 'Admin');
+  }
 
   async function loadUsers() {
     try {
@@ -307,12 +315,14 @@ export default function UserManagement() {
                     {new Date(user.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
+                    {isAdmin && (
                     <button
                       onClick={() => handleDeleteUser(user.id)}
                       className="text-red-600 hover:text-red-800 transition-colors duration-200"
                     >
                       <TrashIcon className="w-5 h-5" />
                     </button>
+                    )}
                   </td>
                 </tr>
               ))}

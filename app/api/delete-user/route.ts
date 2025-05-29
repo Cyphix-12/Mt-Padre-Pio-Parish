@@ -12,23 +12,27 @@ const adminClient = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    // Check if user is authenticated and has admin role
     const supabase = createRouteHandlerClient({ cookies });
     const { data: { session }, error: authError } = await supabase.auth.getSession();
 
     if (authError || !session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Please sign in to continue' }, { status: 401 });
     }
 
     // Verify admin role
     const { data: roleData, error: roleError } = await supabase
-      .from('user_with_role')
-      .select('role_name')
-      .eq('user_id', session.user.id)
-      .single();
+      .from('user_with_role') 
+      .select('role_name, role_permissions')
+      .eq('user_id', session.user.id);
 
-    if (roleError || roleData?.role_name !== 'Admin') {
-      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    if (roleError) {
+      console.error('Error fetching role:', roleError);
+      return NextResponse.json({ error: 'Error verifying permissions' }, { status: 500 });
+    }
+
+    const isAdmin = roleData?.[0]?.role_name === 'Admin';
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 }); 
     }
 
     const { userId } = await req.json();
