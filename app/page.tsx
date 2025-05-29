@@ -23,16 +23,16 @@ export default function Home() {
     <div className="flex h-screen bg-white overflow-hidden">
       <Sidebar />
       
-      <div className="flex-1 flex flex-col lg:ml-64 md:ml-[320px] transition-[margin] duration-300 ease-in-out overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto flex flex-col items-center">
-          <div className={`w-full max-w-7xl space-y-6 ${FADE_IN_ANIMATION}`}>
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
+          <div className={`w-full max-w-6xl mx-auto space-y-6 ${FADE_IN_ANIMATION}`}>
             <DashboardStats />
             
             <DashboardCharts />
             
-            <div className="w-full bg-white rounded-3xl p-6 min-h-[300px] shadow-sm">
+            <div className="bg-white rounded-3xl p-6 min-h-[300px] shadow-sm">
               {/* Additional content area */}
             </div>
           </div>
