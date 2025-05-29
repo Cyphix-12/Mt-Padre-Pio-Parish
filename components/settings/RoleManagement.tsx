@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, ShieldCheckIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { supabase } from '@/utils/supabase';
 
 interface Role {
@@ -107,6 +107,13 @@ export default function RoleManagement() {
 
   return (
     <div className="space-y-6">
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-6 rounded-2xl border border-purple-200">
@@ -116,7 +123,7 @@ export default function RoleManagement() {
               <p className="text-2xl font-bold text-purple-900 mt-1">{roles.length}</p>
             </div>
             <div className="w-12 h-12 bg-purple-200 rounded-xl flex items-center justify-center">
-              <Shield className="w-6 h-6 text-purple-600" />
+              <ShieldCheckIcon className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </div>
@@ -134,7 +141,7 @@ export default function RoleManagement() {
               </p>
             </div>
             <div className="w-12 h-12 bg-indigo-200 rounded-xl flex items-center justify-center">
-              <Lock className="w-6 h-6 text-indigo-600" />
+              <LockClosedIcon className="w-6 h-6 text-indigo-600" />
             </div>
           </div>
         </div>
@@ -194,48 +201,61 @@ export default function RoleManagement() {
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
             <PlusIcon className="w-5 h-5" />
-            Add Role
+            {loading ? 'Adding...' : 'Add Role'}
           </button>
         </form>
       </div>
 
       {/* Roles List */}
-      <div className="mt-6">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Description
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {roles.map((role) => (
-              <tr key={role.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {role.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {role.description}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={() => handleDeleteRole(role.id)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">Existing Roles</h3>
+        </div>
+        
+        {roles.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Description
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {roles.map((role) => (
+                  <tr key={role.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {role.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {role.description}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => handleDeleteRole(role.id)}
+                        className="text-red-600 hover:text-red-900 transition-colors"
+                        title="Delete role"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="px-6 py-8 text-center text-gray-500">
+            No roles created yet. Add your first role above.
+          </div>
+        )}
       </div>
     </div>
   );
