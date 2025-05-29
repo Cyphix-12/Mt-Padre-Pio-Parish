@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/utils/supabase';
+import { Users, Home, Church } from 'lucide-react';
 import StatCard from '@/components/StatCard';
 
 interface Stats {
@@ -68,19 +69,25 @@ export default function DashboardStats() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mb-8 w-full justify-items-center">
       <StatCard
-        title="Kanda"
+        title="Zones"
         value={stats.zones}
-        className="bg-gradient-to-br from-pink-500 to-red-500"
+        icon="activity"
+        color="purple"
+        trend={{ value: stats.zones, isPositive: true }}
       />
       <StatCard
-        title="Jumuiya"
+        title="Communities"
         value={stats.communities}
-        className="bg-gradient-to-br from-blue-400 to-blue-600"
+        icon="users"
+        color="blue"
+        trend={{ value: stats.communities, isPositive: true }}
       />
       <StatCard
-        title="Waumini"
+        title="Members"
         value={stats.members}
-        className="bg-gradient-to-br from-purple-400 to-purple-600"
+        icon="trending"
+        color="green"
+        trend={{ value: stats.members, isPositive: true }}
       />
     </div>
   );
