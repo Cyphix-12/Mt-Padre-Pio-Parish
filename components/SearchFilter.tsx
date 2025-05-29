@@ -20,8 +20,8 @@ export default function SearchFilter({ onFiltersChange }: SearchFilterProps) {
       id: 'personal',
       label: 'Personal Status',
       icon: (
-        <svg className="w-5 h-5\" fill="none\" stroke="currentColor\" viewBox="0 0 24 24">
-          <path strokeLinecap="round\" strokeLinejoin="round\" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       ),
       options: [
@@ -381,9 +381,6 @@ export default function SearchFilter({ onFiltersChange }: SearchFilterProps) {
                               ))}
                             </div>
                           </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>
                         ))}
                       </div>
                     )}
