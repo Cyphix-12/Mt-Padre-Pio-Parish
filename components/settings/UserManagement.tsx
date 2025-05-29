@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, UsersIcon, UserIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import { fetchUsers } from '@/utils/users';
 import { supabase } from '@/utils/supabase';
 
@@ -18,6 +18,7 @@ export default function UserManagement() {
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
+  const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -90,6 +91,7 @@ export default function UserManagement() {
       await loadUsers();
       setNewUserEmail('');
       setNewUserPassword('');
+      setShowAddForm(false);
     } catch (error) {
       console.error('Error creating user:', error);
       setError(error instanceof Error ? error.message : 'Failed to create user');
@@ -146,6 +148,13 @@ export default function UserManagement() {
 
   return (
     <div className="space-y-6">
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">{error}</p>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-2xl border border-blue-200">
@@ -155,7 +164,7 @@ export default function UserManagement() {
               <p className="text-2xl font-bold text-blue-900 mt-1">{users.length}</p>
             </div>
             <div className="w-12 h-12 bg-blue-200 rounded-xl flex items-center justify-center">
-              <Users className="w-6 h-6 text-blue-600" />
+              <UsersIcon className="w-6 h-6 text-blue-600" />
             </div>
           </div>
         </div>
@@ -169,7 +178,7 @@ export default function UserManagement() {
               </p>
             </div>
             <div className="w-12 h-12 bg-green-200 rounded-xl flex items-center justify-center">
-              <UserCheck className="w-6 h-6 text-green-600" />
+              <UserIcon className="w-6 h-6 text-green-600" />
             </div>
           </div>
         </div>
@@ -188,7 +197,7 @@ export default function UserManagement() {
               </p>
             </div>
             <div className="w-12 h-12 bg-purple-200 rounded-xl flex items-center justify-center">
-              <UserPlus className="w-6 h-6 text-purple-600" />
+              <UserPlusIcon className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </div>
@@ -203,45 +212,47 @@ export default function UserManagement() {
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
           >
             <PlusIcon className="w-4 h-4" />
-            <span>Add User</span>
+            <span>{showAddForm ? 'Cancel' : 'Add User'}</span>
           </button>
         </div>
 
-        <form onSubmit={handleCreateUser} className="space-y-4 bg-gray-50 p-4 rounded-xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-              <input
-                type="email"
-                value={newUserEmail}
-                onChange={(e) => setNewUserEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter email address"
-                required
-              />
+        {showAddForm && (
+          <form onSubmit={handleCreateUser} className="space-y-4 bg-gray-50 p-4 rounded-xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                <input
+                  type="email"
+                  value={newUserEmail}
+                  onChange={(e) => setNewUserEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter email address"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <input
+                  type="password"
+                  value={newUserPassword}
+                  onChange={(e) => setNewUserPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter password"
+                  required
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-              <input
-                type="password"
-                value={newUserPassword}
-                onChange={(e) => setNewUserPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter password"
-                required
-              />
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50"
+              >
+                {loading ? 'Creating...' : 'Create User'}
+              </button>
             </div>
-          </div>
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
-            >
-              {loading ? 'Creating...' : 'Create User'}
-            </button>
-          </div>
-        </form>
+          </form>
+        )}
       </div>
 
       {/* Users List */}
