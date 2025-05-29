@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/utils/supabase';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { supabase } from '@/utils/supabase';
 
 interface Role {
   id: string;
@@ -107,69 +107,99 @@ export default function RoleManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="border-b pb-4">
-        <h3 className="text-lg font-medium text-accent">Role Management</h3>
-        <p className="text-sm text-gray-500">Manage user roles and permissions</p>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-6 rounded-2xl border border-purple-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-medium text-purple-600">Total Roles</h3>
+              <p className="text-2xl font-bold text-purple-900 mt-1">{roles.length}</p>
+            </div>
+            <div className="w-12 h-12 bg-purple-200 rounded-xl flex items-center justify-center">
+              <Shield className="w-6 h-6 text-purple-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 p-6 rounded-2xl border border-indigo-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-medium text-indigo-600">Active Permissions</h3>
+              <p className="text-2xl font-bold text-indigo-900 mt-1">
+                {roles.reduce((sum, role) => {
+                  return sum + Object.values(role.permissions).reduce((count, resource) => {
+                    return count + Object.values(resource).filter(Boolean).length;
+                  }, 0);
+                }, 0)}
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-indigo-200 rounded-xl flex items-center justify-center">
+              <Lock className="w-6 h-6 text-indigo-600" />
+            </div>
+          </div>
+        </div>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleCreateRole} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            value={newRoleName}
-            onChange={(e) => setNewRoleName(e.target.value)}
-            placeholder="Role name"
-            required
-            className="rounded-lg border border-gray-300 px-4 py-2 text-gray-900"
-          />
-          <input
-            type="text"
-            value={newRoleDescription}
-            onChange={(e) => setNewRoleDescription(e.target.value)}
-            placeholder="Role description"
-            required
-            className="rounded-lg border border-gray-300 px-4 py-2 text-gray-900"
-          />
+      {/* Add Role Form */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Add New Role</h3>
         </div>
 
-        <div className="space-y-4">
-          <h4 className="font-medium text-gray-700">Permissions</h4>
-          {Object.entries(newRolePermissions).map(([resource, actions]) => (
-            <div key={resource} className="space-y-2">
-              <h5 className="text-sm font-medium text-gray-600 capitalize">{resource}</h5>
-              <div className="flex gap-4">
-                {Object.entries(actions).map(([action, value]) => (
-                  <label key={action} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={value}
-                      onChange={(e) => handlePermissionChange(resource, action, e.target.checked)}
-                      className="rounded border-gray-300 text-accent focus:ring-accent"
-                    />
-                    <span className="text-sm text-gray-600 capitalize">{action}</span>
-                  </label>
-                ))}
+        <form onSubmit={handleCreateRole} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              type="text"
+              value={newRoleName}
+              onChange={(e) => setNewRoleName(e.target.value)}
+              placeholder="Role name"
+              required
+              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-900"
+            />
+            <input
+              type="text"
+              value={newRoleDescription}
+              onChange={(e) => setNewRoleDescription(e.target.value)}
+              placeholder="Role description"
+              required
+              className="rounded-lg border border-gray-300 px-4 py-2 text-gray-900"
+            />
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="font-medium text-gray-700">Permissions</h4>
+            {Object.entries(newRolePermissions).map(([resource, actions]) => (
+              <div key={resource} className="space-y-2">
+                <h5 className="text-sm font-medium text-gray-600 capitalize">{resource}</h5>
+                <div className="flex gap-4">
+                  {Object.entries(actions).map(([action, value]) => (
+                    <label key={action} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={value}
+                        onChange={(e) => handlePermissionChange(resource, action, e.target.checked)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-600 capitalize">{action}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 disabled:opacity-50"
-        >
-          <PlusIcon className="w-5 h-5" />
-          Add Role
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          >
+            <PlusIcon className="w-5 h-5" />
+            Add Role
+          </button>
+        </form>
+      </div>
 
+      {/* Roles List */}
       <div className="mt-6">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
