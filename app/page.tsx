@@ -7,6 +7,8 @@ import Sidebar from '@/components/Sidebar';
 import DashboardStats from '@/components/DashboardStats';
 import DashboardCharts from '@/components/DashboardCharts';
 
+const FADE_IN_ANIMATION = 'animate-[fadeIn_0.5s_ease-in-out]';
+
 export default function Home() {
   const router = useRouter();
   
@@ -26,6 +28,8 @@ export default function Home() {
         
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
           <div className="max-w-7xl mx-auto space-y-6">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
+          <div className={`max-w-7xl mx-auto space-y-6 ${FADE_IN_ANIMATION}`}>
             <DashboardStats />
             
             <DashboardCharts />
