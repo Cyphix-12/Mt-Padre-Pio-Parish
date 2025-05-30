@@ -53,7 +53,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     
     // Validation logic (simplified for demo)
     const requiredFields = ['gender', 'residence', 'baptism', 'confirmation', 'marriage', 'membershipStatus'];
-    const emptyFields = requiredFields.filter(field => formData[field] === 'select');
+    const emptyFields = requiredFields.filter(field => formData[field as keyof FormDataType] === 'select');
     
     if (emptyFields.length > 0) {
       setError('Please select all required options marked with (*)');
