@@ -46,7 +46,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     { id: 4, title: 'Marriage & Membership', icon: Users, color: 'bg-pink-500' }
   ];
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
