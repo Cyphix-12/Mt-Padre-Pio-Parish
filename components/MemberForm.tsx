@@ -9,7 +9,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState(0);
-  const [formData, setFormData] = useState<FormDataType>({
+  const [formData, setFormData] = useState<MemberFormProps>({
     jina_first: '',
     jina_middle: '',
     jina_last: '',
@@ -53,7 +53,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     
     // Validation logic (simplified for demo)
     const requiredFields = ['gender', 'residence', 'baptism', 'confirmation', 'marriage', 'membershipStatus'];
-    const emptyFields = requiredFields.filter(field => formData[field as keyof FormDataType] === 'select');
+    const emptyFields = requiredFields.filter(field => formData[field as keyof MemberFormProps] === 'select');
     
     if (emptyFields.length > 0) {
       setError('Please select all required options marked with (*)');
