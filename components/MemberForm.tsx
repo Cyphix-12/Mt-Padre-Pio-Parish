@@ -9,7 +9,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState(0);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataType>({
     jina_first: '',
     jina_middle: '',
     jina_last: '',
