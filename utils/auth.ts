@@ -40,9 +40,11 @@ type UserRole = {
 // Fetch user role and permissions from Supabase
 export async function getUserRole(): Promise<UserRole | null> {
   try {
+    // Get current session
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
+      console.log('No user found in session');
       return null;
     }
 
@@ -50,14 +52,14 @@ export async function getUserRole(): Promise<UserRole | null> {
       .from('user_with_role')
       .select('role_name, role_permissions')
       .eq('user_id', user.id)
-      .maybeSingle<UserRole>();
+      .single();
 
     if (error) {
       console.error('Error fetching role:', error);
       return null;
     }
 
-    return userRole || null;
+    return userRole;
   } catch (error) {
     console.error('Error fetching user role:', error);
     return null;
