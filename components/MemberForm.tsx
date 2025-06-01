@@ -7,7 +7,7 @@ interface MemberFormProps {
 
 export default function MemberForm({ onClose }: MemberFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState(0);
   const [formData, setFormData] = useState({
     jina_first: '',
@@ -52,7 +52,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     setIsSubmitting(true);
     
     // Validation logic (simplified for demo)
-    const requiredFields = ['gender', 'residence', 'baptism', 'confirmation', 'marriage', 'membershipStatus'];
+    const requiredFields: (keyof typeof formData)[] = ['gender', 'residence', 'baptism', 'confirmation', 'marriage', 'membershipStatus'];
     const emptyFields = requiredFields.filter(field => formData[field] === 'select');
     
     if (emptyFields.length > 0) {
@@ -68,7 +68,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     }, 2000);
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
