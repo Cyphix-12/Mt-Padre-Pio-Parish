@@ -34,7 +34,8 @@ export default function Sidebar() {
   useEffect(() => {
     const checkUserRole = async () => {
       const role = await getUserRole();
-      setUserRole(role?.role_name || null);
+      // Fixed: Use a default string value instead of null
+      setUserRole(role?.role_name || 'User');
     };
     checkUserRole();
   }, []);
