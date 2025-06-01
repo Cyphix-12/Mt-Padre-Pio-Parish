@@ -12,6 +12,7 @@ interface User {
   user_metadata: Record<string, any>;
   created_at: string;
   last_sign_in_at: string;
+  role?: string | null; // Added this line to fix the TypeScript error
 }
 
 export default function UserManagement() {
