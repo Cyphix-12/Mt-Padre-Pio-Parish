@@ -543,8 +543,8 @@ export default function MemberForm({ onClose }: MemberFormProps) {
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col max-h-screen">
+        {/* Main Content - Wrapped in form */}
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col max-h-screen">
           <div className="p-8 flex-1 overflow-y-auto min-h-0">
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center gap-3">
@@ -593,7 +593,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
               
               {activeSection === sections.length - 1 ? (
                 <button
-                  onClick={handleSubmit}
+                  type="submit"
                   disabled={isSubmitting}
                   className={`px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold transition-all duration-200 ${
                     isSubmitting
@@ -614,7 +614,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
               )}
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
