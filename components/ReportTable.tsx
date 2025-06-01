@@ -36,7 +36,15 @@ interface ReportTableProps {
   searchQuery: string;
 }
 
-function DeleteConfirmationModal({ isOpen, member, onConfirm, onCancel, isDeleting }) {
+interface DeleteConfirmationModalProps {
+  isOpen: boolean;
+  member: Member | null;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isDeleting: boolean;
+}
+
+function DeleteConfirmationModal({ isOpen, member, onConfirm, onCancel, isDeleting }: DeleteConfirmationModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -96,7 +104,13 @@ function DeleteConfirmationModal({ isOpen, member, onConfirm, onCancel, isDeleti
   );
 }
 
-function CollapsibleSection({ title, children, icon: Icon }) {
+interface CollapsibleSectionProps {
+  title: string;
+  children: React.ReactNode;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+function CollapsibleSection({ title, children, icon: Icon }: CollapsibleSectionProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -126,7 +140,13 @@ function CollapsibleSection({ title, children, icon: Icon }) {
   );
 }
 
-function InfoItem({ label, value, icon: Icon }) {
+interface InfoItemProps {
+  label: string;
+  value: string;
+  icon?: React.ComponentType<{ className?: string }>;
+}
+
+function InfoItem({ label, value, icon: Icon }: InfoItemProps) {
   return (
     <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
       {Icon && <Icon className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />}
@@ -138,8 +158,13 @@ function InfoItem({ label, value, icon: Icon }) {
   );
 }
 
-function StatusBadge({ status, type }) {
-  const getStatusColor = (status, type) => {
+interface StatusBadgeProps {
+  status: string;
+  type: string;
+}
+
+function StatusBadge({ status, type }: StatusBadgeProps) {
+  const getStatusColor = (status: string, type: string) => {
     if (status === 'Yes' || status === 'Married') {
       return 'bg-emerald-100 text-emerald-800 border-emerald-200';
     } else if (status === 'No' || status === 'Single') {
