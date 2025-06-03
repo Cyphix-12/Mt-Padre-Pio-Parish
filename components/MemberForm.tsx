@@ -83,7 +83,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             name="jina_first"
             value={formData.jina_first}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder="Enter first name"
             required
           />
@@ -95,7 +95,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             name="jina_middle"
             value={formData.jina_middle}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder="Enter middle name"
           />
         </div>
@@ -106,7 +106,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             name="jina_last"
             value={formData.jina_last}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder="Enter last name"
             required
           />
@@ -120,7 +120,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             name="gender"
             value={formData.gender}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
             required
           >
             <option value="select">Select Gender</option>
@@ -135,7 +135,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             name="tarehe_kuzaliwa"
             value={formData.tarehe_kuzaliwa}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
             required
           />
         </div>
@@ -149,7 +149,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder="Enter phone number"
           />
         </div>
@@ -160,7 +160,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             name="occupation"
             value={formData.occupation}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder="Enter occupation"
           />
         </div>
@@ -172,7 +172,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
           name="residence"
           value={formData.residence}
           onChange={handleChange}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
           required
         >
           <option value="select">Select Residence Status</option>
@@ -205,7 +205,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             name="kanda"
             value={formData.kanda}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder="Enter zone"
             required
           />
@@ -220,7 +220,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             name="kaya"
             value={formData.kaya}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder="Enter household"
             required
           />
@@ -232,7 +232,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             name="nafasi_kaya"
             value={formData.nafasi_kaya}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder="Enter position"
             required
           />
@@ -249,7 +249,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
           name="baptism"
           value={formData.baptism}
           onChange={handleChange}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-700"
           required
         >
           <option value="select">Select Baptismal Status</option>
@@ -269,7 +269,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                 name="baptismDate"
                 value={formData.baptismDate}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-700"
                 required={formData.baptism === 'Baptized'}
               />
             </div>
@@ -280,7 +280,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                 name="baptismNumber"
                 value={formData.baptismNumber}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-700"
                 placeholder="Enter baptism number"
                 required={formData.baptism === 'Baptized'}
               />
@@ -293,7 +293,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
               name="baptismChurch"
               value={formData.baptismChurch}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-700"
               placeholder="Enter church name"
               required={formData.baptism === 'Baptized'}
             />
@@ -311,7 +311,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
           name="confirmation"
           value={formData.confirmation}
           onChange={handleChange}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-gray-700"
           required
         >
           <option value="select">Select Confirmation Status</option>
@@ -331,7 +331,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                 name="confirmationDate"
                 value={formData.confirmationDate}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-gray-700"
                 required={formData.confirmation === 'Confirmed'}
               />
             </div>
@@ -342,7 +342,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                 name="confirmationNumber"
                 value={formData.confirmationNumber}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-gray-700"
                 placeholder="Enter confirmation number"
                 required={formData.confirmation === 'Confirmed'}
               />
@@ -355,7 +355,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
               name="confirmationChurch"
               value={formData.confirmationChurch}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-gray-700"
               placeholder="Enter church name"
               required={formData.confirmation === 'Confirmed'}
             />
@@ -375,7 +375,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             name="marriage"
             value={formData.marriage}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
             required
           >
             <option value="select">Select Marital Status</option>
@@ -398,7 +398,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                   name="marriageDate"
                   value={formData.marriageDate}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
                   required={['Married', 'Separated'].includes(formData.marriage)}
                 />
               </div>
@@ -409,7 +409,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                   name="marriageNumber"
                   value={formData.marriageNumber}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
                   placeholder="Enter marriage number"
                   required={['Married', 'Separated'].includes(formData.marriage)}
                 />
@@ -422,7 +422,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                 name="marriageChurch"
                 value={formData.marriageChurch}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
                 placeholder="Enter church name"
                 required={['Married', 'Separated'].includes(formData.marriage)}
               />
@@ -440,7 +440,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
               name="membershipStatus"
               value={formData.membershipStatus}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
               required
             >
               <option value="select">Select Membership Status</option>
@@ -457,7 +457,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                 name="endDate"
                 value={formData.endDate}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
                 required={formData.membershipStatus === 'Inactive - Death'}
               />
             </div>
