@@ -391,8 +391,8 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
                   <span className="text-sm font-medium text-blue-900">Personal Info</span>
                 </div>
                 <div className="space-y-2 text-sm">
-                  <div><span className="text-gray-600">Gender:</span> <span className="font-medium">{member.gender}</span></div>
-                  <div><span className="text-gray-600">DOB:</span> <span className="font-medium">{new Date(member.birth_date).toLocaleDateString()}</span></div>
+                  <div><span className="text-gray-600">Gender:</span> <span className="font-medium text-blue-600">{member.gender}</span></div>
+                  <div><span className="text-gray-600">DOB:</span> <span className="font-medium text-blue-600">{new Date(member.birth_date).toLocaleDateString()}</span></div>
                 </div>
               </div>
 
@@ -402,8 +402,8 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
                   <span className="text-sm font-medium text-green-900">Contact</span>
                 </div>
                 <div className="space-y-2 text-sm">
-                  <div><span className="text-gray-600">Phone:</span> <span className="font-medium">{member.phone_no}</span></div>
-                  <div><span className="text-gray-600">Residence:</span> <span className="font-medium">{member.residence}</span></div>
+                  <div><span className="text-gray-600">Phone:</span> <span className="font-medium text-green-600">{member.phone_no}</span></div>
+                  <div><span className="text-gray-600">Residence:</span> <span className="font-medium text-green-600">{member.residence}</span></div>
                 </div>
               </div>
 
@@ -413,8 +413,8 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
                   <span className="text-sm font-medium text-purple-900">Household</span>
                 </div>
                 <div className="space-y-2 text-sm">
-                  <div><span className="text-gray-600">Family:</span> <span className="font-medium">{member.household}</span></div>
-                  <div><span className="text-gray-600">Position:</span> <span className="font-medium">{member.household_position}</span></div>
+                  <div><span className="text-gray-600">Family:</span> <span className="font-medium text-purple-600">{member.household}</span></div>
+                  <div><span className="text-gray-600">Position:</span> <span className="font-medium text-purple-600">{member.household_position}</span></div>
                 </div>
               </div>
 
