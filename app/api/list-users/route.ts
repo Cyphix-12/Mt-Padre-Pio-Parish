@@ -2,6 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
+export const dynamic = 'force-dynamic';
+
 // Admin client (with service role key)
 const adminClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
