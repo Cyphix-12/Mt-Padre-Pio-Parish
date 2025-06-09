@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, Edit3, Trash2, User, Phone, MapPin, Home, Church, Calendar, Users, Award, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/utils/supabase';
 import { getUserRole } from '@/utils/auth';
+import EditMemberModal from '@/components/EditMemberModal';
 
 interface Member {
   member_id: string;
@@ -191,6 +192,7 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
     fetchMembers();
@@ -206,7 +208,19 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
 
   const handleEdit = (member: Member) => {
     setSelectedMember(member);
-    // Handle edit functionality
+    setEditModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    // Refresh the members list after successful edit
+    fetchMembers();
+    setEditModalOpen(false);
+    setSelectedMember(null);
+  };
+
+  const handleEditCancel = () => {
+    setEditModalOpen(false);
+    setSelectedMember(null);
   };
 
   const handleDelete = async (member: Member) => {
@@ -477,6 +491,14 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
           </div>
         </div>
       ))}
+
+      {/* Edit Member Modal */}
+      <EditMemberModal
+        isOpen={editModalOpen}
+        member={selectedMember}
+        onSuccess={handleEditSuccess}
+        onCancel={handleEditCancel}
+      />
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
