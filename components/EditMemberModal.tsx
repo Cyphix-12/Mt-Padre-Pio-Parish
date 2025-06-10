@@ -133,7 +133,7 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                 </p>
               </div>
               <button
-                onClick={onClose}
+                onClick={onCancel}
                 className="text-white/80 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full"
               >
                 <XMarkIcon className="h-6 w-6" />
