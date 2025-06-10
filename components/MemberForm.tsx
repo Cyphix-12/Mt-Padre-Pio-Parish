@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { X, User, MapPin, Heart, Calendar, Users } from 'lucide-react';
 
+
+const { data: { user }, error } = await supabase.auth.getUser();
+
 interface MemberFormProps {
   onClose: () => void;
 }
