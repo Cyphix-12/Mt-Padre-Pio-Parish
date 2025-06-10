@@ -106,7 +106,7 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
       ]);
 
       await onUpdate();
-      onClose();
+      onCancel();
     } catch (error) {
       console.error('Error updating member:', error);
       setError(error instanceof Error ? error.message : 'Failed to update member');
