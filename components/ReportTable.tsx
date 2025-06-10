@@ -496,6 +496,8 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
     <EditMemberModal
   isOpen={editModalOpen}
   member={selectedMember}
+  onSuccess={handleEditSuccess}
+  onUpdate={handleEditSuccess}
   onCancel={() => {
     // Handle both success and cancel cases
     fetchMembers(); // Refresh the list
