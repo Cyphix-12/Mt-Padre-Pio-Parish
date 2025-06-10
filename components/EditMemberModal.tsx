@@ -509,7 +509,7 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
             <div className="flex flex-col sm:flex-row justify-end gap-4">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={onCancel}
                 className="px-8 py-3 border-2 border-gray-300 rounded-xl text-gray-700 hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 font-medium transition-all duration-200 text-center"
                 disabled={isSubmitting}
               >
