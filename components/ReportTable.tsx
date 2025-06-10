@@ -211,9 +211,9 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
     setEditModalOpen(true);
   };
 
-  const handleEditSuccess = () => {
+  const handleEditSuccess = async () => {
     // Refresh the members list after successful edit
-    fetchMembers();
+    await fetchMembers();
     setEditModalOpen(false);
     setSelectedMember(null);
   };
