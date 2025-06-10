@@ -11,7 +11,7 @@ interface EditMemberModalProps {
   onUpdate: () => Promise<void>;
 }
 
-export default function EditMemberModal({ member, isOpen, onClose, onUpdate }: EditMemberModalProps) {
+export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, onUpdate }: EditMemberModalProps) {
   const [formData, setFormData] = useState({
     name: member?.name || '',
     gender: member?.gender || 'select',
