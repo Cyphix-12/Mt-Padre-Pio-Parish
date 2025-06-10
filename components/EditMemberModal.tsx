@@ -116,7 +116,7 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-[100]">
+    <Dialog open={isOpen} onCancel={onCancel} className="fixed inset-0 z-[100]">
       <div className="flex items-center justify-center min-h-screen p-4 md:p-6 lg:p-8">
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity" />
         
