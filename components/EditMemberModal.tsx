@@ -6,7 +6,8 @@ import { supabase } from '@/utils/supabase';
 interface EditMemberModalProps {
   member: any;
   isOpen: boolean;
-  onClose: () => void;
+  onSuccess: () => void;
+  onCancel: () => void;
   onUpdate: () => Promise<void>;
 }
 
