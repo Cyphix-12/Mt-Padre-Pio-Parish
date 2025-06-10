@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, User, MapPin, Heart, Calendar, Users } from 'lucide-react';
-import { role } from 'util/auth';
+import { user } from 'util/auth';
 
 const { data: { user }, error } = await supabase.auth.getUser();
 
