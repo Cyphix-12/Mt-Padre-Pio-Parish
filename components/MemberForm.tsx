@@ -8,34 +8,31 @@ interface MemberFormProps {
 export default function MemberForm({ onClose }: MemberFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const [formData, setFormData] = useState({
-    jina_first: '',
-    jina_middle: '',
-    jina_last: '',
+    name: '',
     gender: 'select',
-    jumuiya: '',
-    kanda: '',
-    kaya: '',
-    nafasi_kaya: '',
-    phone: '',
-    occupation: '',
-    tarehe_kuzaliwa: '',
+    birth_date: '',
     residence: 'select',
-    baptism: 'select',
-    baptismDate: '',
-    baptismNumber: '',
-    baptismChurch: '',
-    confirmation: 'select',
-    confirmationDate: '',
-    confirmationNumber: '',
-    confirmationChurch: '',
-    marriage: 'select',
-    marriageDate: '',
-    marriageNumber: '',
-    marriageChurch: '',
-    membershipStatus: 'select',
-    endDate: ''
+    phone_no: '',
+    occupation: '',
+    household: '',
+    household_position: '',
+    community: '',
+    zone: '',
+    baptized: 'select',
+    date_baptized: '',
+    baptism_no: '',
+    church_baptized: '',
+    confirmed: 'select',
+    confirmation_date: '',
+    confirmation_no: '',
+    church_confirmed: '',
+    marriage_status: 'select',
+    marriage_date: '',
+    marriage_no: '',
+    church_married: ''
   });
 
   const sections = [
@@ -43,29 +40,68 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     { id: 1, title: 'Community & Location', icon: MapPin, color: 'bg-green-500' },
     { id: 2, title: 'Baptism', icon: Heart, color: 'bg-purple-500' },
     { id: 3, title: 'Confirmation', icon: Calendar, color: 'bg-orange-500' },
-    { id: 4, title: 'Marriage & Membership', icon: Users, color: 'bg-pink-500' }
+    { id: 4, title: 'Marriage', icon: Users, color: 'bg-pink-500' }
   ];
+
+  const validateForm = () => {
+    const requiredFields = ['name', 'gender', 'residence', 'baptized', 'confirmed', 'marriage_status'];
+    const selectFields = ['gender', 'residence', 'baptized', 'confirmed', 'marriage_status'];
+    
+    for (const field of requiredFields) {
+      if (!formData[field as keyof typeof formData] || 
+          (selectFields.includes(field) && formData[field as keyof typeof formData] === 'select')) {
+        return `Please select a valid ${field.replace('_', ' ')}`;
+      }
+    }
+    
+    if (!formData.name.trim()) {
+      return 'Name is required';
+    }
+    
+    return null;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
     
-    // Validation logic (simplified for demo)
-    const requiredFields: (keyof typeof formData)[] = ['gender', 'residence', 'baptism', 'confirmation', 'marriage', 'membershipStatus'];
-    const emptyFields = requiredFields.filter(field => formData[field] === 'select');
-    
-    if (emptyFields.length > 0) {
-      setError('Please select all required options marked with (*)');
+    // Validate form
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
       setIsSubmitting(false);
       return;
     }
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/members', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create member');
+      }
+
+      setSuccess(true);
+      
+      // Show success message for 2 seconds then close
+      setTimeout(() => {
+        onClose();
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error creating member:', error);
+      setError(error instanceof Error ? error.message : 'Failed to create member');
+    } finally {
       setIsSubmitting(false);
-      alert('Member saved successfully!');
-    }, 2000);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -75,45 +111,19 @@ export default function MemberForm({ onClose }: MemberFormProps) {
 
   const renderPersonalInfo = () => (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">First Name *</label>
-          <input
-            type="text"
-            name="jina_first"
-            value={formData.jina_first}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
-            placeholder="Enter first name"
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Middle Name</label>
-          <input
-            type="text"
-            name="jina_middle"
-            value={formData.jina_middle}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
-            placeholder="Enter middle name"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Last Name *</label>
-          <input
-            type="text"
-            name="jina_last"
-            value={formData.jina_last}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
-            placeholder="Enter last name"
-            required
-          />
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">Full Name *</label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
+            placeholder="Enter full name"
+            required
+          />
+        </div>
         <div className="space-y-2">
           <label className="block text-sm font-semibold text-gray-700">Gender *</label>
           <select
@@ -128,16 +138,32 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             <option value="Female">Female</option>
           </select>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Date of Birth *</label>
+          <label className="block text-sm font-semibold text-gray-700">Date of Birth</label>
           <input
             type="date"
-            name="tarehe_kuzaliwa"
-            value={formData.tarehe_kuzaliwa}
+            name="birth_date"
+            value={formData.birth_date}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">Residence Status *</label>
+          <select
+            name="residence"
+            value={formData.residence}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
             required
-          />
+          >
+            <option value="select">Select Residence Status</option>
+            <option value="Permanent">Permanent</option>
+            <option value="Temporary">Temporary</option>
+          </select>
         </div>
       </div>
 
@@ -146,8 +172,8 @@ export default function MemberForm({ onClose }: MemberFormProps) {
           <label className="block text-sm font-semibold text-gray-700">Phone Number</label>
           <input
             type="tel"
-            name="phone"
-            value={formData.phone}
+            name="phone_no"
+            value={formData.phone_no}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder="Enter phone number"
@@ -165,21 +191,6 @@ export default function MemberForm({ onClose }: MemberFormProps) {
           />
         </div>
       </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm font-semibold text-gray-700">Residence Status *</label>
-        <select
-          name="residence"
-          value={formData.residence}
-          onChange={handleChange}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
-          required
-        >
-          <option value="select">Select Residence Status</option>
-          <option value="Permanent">Permanent</option>
-          <option value="Temporary">Temporary</option>
-        </select>
-      </div>
     </div>
   );
 
@@ -187,54 +198,50 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Community *</label>
+          <label className="block text-sm font-semibold text-gray-700">Community</label>
           <input
             type="text"
-            name="jumuiya"
-            value={formData.jumuiya}
+            name="community"
+            value={formData.community}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
             placeholder="Enter community name"
-            required
           />
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Zone *</label>
+          <label className="block text-sm font-semibold text-gray-700">Zone</label>
           <input
             type="text"
-            name="kanda"
-            value={formData.kanda}
+            name="zone"
+            value={formData.zone}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder="Enter zone"
-            required
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Household *</label>
+          <label className="block text-sm font-semibold text-gray-700">Household</label>
           <input
             type="text"
-            name="kaya"
-            value={formData.kaya}
+            name="household"
+            value={formData.household}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder="Enter household"
-            required
           />
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Position in Household *</label>
+          <label className="block text-sm font-semibold text-gray-700">Position in Household</label>
           <input
             type="text"
-            name="nafasi_kaya"
-            value={formData.nafasi_kaya}
+            name="household_position"
+            value={formData.household_position}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder="Enter position"
-            required
           />
         </div>
       </div>
@@ -246,56 +253,53 @@ export default function MemberForm({ onClose }: MemberFormProps) {
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">Baptismal Status *</label>
         <select
-          name="baptism"
-          value={formData.baptism}
+          name="baptized"
+          value={formData.baptized}
           onChange={handleChange}
           className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-700"
           required
         >
           <option value="select">Select Baptismal Status</option>
-          <option value="Baptized">Baptized</option>
-          <option value="Not Baptized">Not Baptized</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
         </select>
       </div>
 
-      {formData.baptism === 'Baptized' && (
+      {formData.baptized === 'Yes' && (
         <div className="space-y-6 p-6 bg-purple-50 rounded-xl border border-purple-200">
           <h4 className="text-lg font-semibold text-purple-800">Baptism Details</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Baptism Date *</label>
+              <label className="block text-sm font-semibold text-gray-700">Baptism Date</label>
               <input
                 type="date"
-                name="baptismDate"
-                value={formData.baptismDate}
+                name="date_baptized"
+                value={formData.date_baptized}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                required={formData.baptism === 'Baptized'}
               />
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Baptism Number *</label>
+              <label className="block text-sm font-semibold text-gray-700">Baptism Number</label>
               <input
                 type="text"
-                name="baptismNumber"
-                value={formData.baptismNumber}
+                name="baptism_no"
+                value={formData.baptism_no}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-700"
                 placeholder="Enter baptism number"
-                required={formData.baptism === 'Baptized'}
               />
             </div>
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">Church Baptized *</label>
+            <label className="block text-sm font-semibold text-gray-700">Church Baptized</label>
             <input
               type="text"
-              name="baptismChurch"
-              value={formData.baptismChurch}
+              name="church_baptized"
+              value={formData.church_baptized}
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-700"
               placeholder="Enter church name"
-              required={formData.baptism === 'Baptized'}
             />
           </div>
         </div>
@@ -308,56 +312,53 @@ export default function MemberForm({ onClose }: MemberFormProps) {
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">Confirmation Status *</label>
         <select
-          name="confirmation"
-          value={formData.confirmation}
+          name="confirmed"
+          value={formData.confirmed}
           onChange={handleChange}
           className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-gray-700"
           required
         >
           <option value="select">Select Confirmation Status</option>
-          <option value="Confirmed">Confirmed</option>
-          <option value="Not Confirmed">Not Confirmed</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
         </select>
       </div>
 
-      {formData.confirmation === 'Confirmed' && (
+      {formData.confirmed === 'Yes' && (
         <div className="space-y-6 p-6 bg-orange-50 rounded-xl border border-orange-200">
           <h4 className="text-lg font-semibold text-orange-800">Confirmation Details</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Confirmation Date *</label>
+              <label className="block text-sm font-semibold text-gray-700">Confirmation Date</label>
               <input
                 type="date"
-                name="confirmationDate"
-                value={formData.confirmationDate}
+                name="confirmation_date"
+                value={formData.confirmation_date}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                required={formData.confirmation === 'Confirmed'}
               />
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Confirmation Number *</label>
+              <label className="block text-sm font-semibold text-gray-700">Confirmation Number</label>
               <input
                 type="text"
-                name="confirmationNumber"
-                value={formData.confirmationNumber}
+                name="confirmation_no"
+                value={formData.confirmation_no}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-gray-700"
                 placeholder="Enter confirmation number"
-                required={formData.confirmation === 'Confirmed'}
               />
             </div>
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">Church Confirmed *</label>
+            <label className="block text-sm font-semibold text-gray-700">Church Confirmed</label>
             <input
               type="text"
-              name="confirmationChurch"
-              value={formData.confirmationChurch}
+              name="church_confirmed"
+              value={formData.church_confirmed}
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-gray-700"
               placeholder="Enter church name"
-              required={formData.confirmation === 'Confirmed'}
             />
           </div>
         </div>
@@ -365,105 +366,65 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     </div>
   );
 
-  const renderMarriageAndMembership = () => (
-    <div className="space-y-8">
-      <div className="space-y-6">
-        <h4 className="text-lg font-semibold text-pink-800">Marriage Information</h4>
-        <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Marital Status *</label>
-          <select
-            name="marriage"
-            value={formData.marriage}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
-            required
-          >
-            <option value="select">Select Marital Status</option>
-            <option value="Divorced">Divorced</option>
-            <option value="Married">Married</option>
-            <option value="Not Married">Not Married</option>
-            <option value="Separated">Separated</option>
-            <option value="Widowed">Widowed</option>
-          </select>
-        </div>
-
-        {['Married', 'Separated'].includes(formData.marriage) && (
-          <div className="space-y-6 p-6 bg-pink-50 rounded-xl border border-pink-200">
-            <h5 className="text-md font-semibold text-pink-800">Marriage Details</h5>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700">Marriage Date *</label>
-                <input
-                  type="date"
-                  name="marriageDate"
-                  value={formData.marriageDate}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                  required={['Married', 'Separated'].includes(formData.marriage)}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700">Marriage Number *</label>
-                <input
-                  type="text"
-                  name="marriageNumber"
-                  value={formData.marriageNumber}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                  placeholder="Enter marriage number"
-                  required={['Married', 'Separated'].includes(formData.marriage)}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Church Married *</label>
-              <input
-                type="text"
-                name="marriageChurch"
-                value={formData.marriageChurch}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                placeholder="Enter church name"
-                required={['Married', 'Separated'].includes(formData.marriage)}
-              />
-            </div>
-          </div>
-        )}
+  const renderMarriageInfo = () => (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700">Marital Status *</label>
+        <select
+          name="marriage_status"
+          value={formData.marriage_status}
+          onChange={handleChange}
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
+          required
+        >
+          <option value="select">Select Marital Status</option>
+          <option value="Not Married">Not Married</option>
+          <option value="Married">Married</option>
+          <option value="Divorced">Divorced</option>
+          <option value="Separated">Separated</option>
+          <option value="Widowed">Widowed</option>
+        </select>
       </div>
 
-      <div className="space-y-6">
-        <h4 className="text-lg font-semibold text-pink-800">Membership Status</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">Membership Status *</label>
-            <select
-              name="membershipStatus"
-              value={formData.membershipStatus}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
-              required
-            >
-              <option value="select">Select Membership Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive - Death">Inactive - Death</option>
-              <option value="Inactive - Moved">Inactive - Moved</option>
-            </select>
-          </div>
-          {formData.membershipStatus === 'Inactive - Death' && (
+      {['Married', 'Separated'].includes(formData.marriage_status) && (
+        <div className="space-y-6 p-6 bg-pink-50 rounded-xl border border-pink-200">
+          <h5 className="text-md font-semibold text-pink-800">Marriage Details</h5>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Date *</label>
+              <label className="block text-sm font-semibold text-gray-700">Marriage Date</label>
               <input
                 type="date"
-                name="endDate"
-                value={formData.endDate}
+                name="marriage_date"
+                value={formData.marriage_date}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                required={formData.membershipStatus === 'Inactive - Death'}
               />
             </div>
-          )}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">Marriage Number</label>
+              <input
+                type="text"
+                name="marriage_no"
+                value={formData.marriage_no}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
+                placeholder="Enter marriage number"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">Church Married</label>
+            <input
+              type="text"
+              name="church_married"
+              value={formData.church_married}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
+              placeholder="Enter church name"
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 
@@ -478,11 +439,27 @@ export default function MemberForm({ onClose }: MemberFormProps) {
       case 3: 
         return renderConfirmationInfo();
       case 4: 
-        return renderMarriageAndMembership();
+        return renderMarriageInfo();
       default: 
         return renderPersonalInfo();
     }
   };
+
+  if (success) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Member Created Successfully!</h3>
+          <p className="text-gray-600">The new member has been added to the parish records.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end p-4 bg-black bg-opacity-50 overflow-auto lg:pl-64">

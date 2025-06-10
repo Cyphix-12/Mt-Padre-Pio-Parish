@@ -493,18 +493,13 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
       ))}
 
       {/* Edit Member Modal */}
-    <EditMemberModal
-  isOpen={editModalOpen}
-  member={selectedMember}
-  onSuccess={handleEditSuccess}
-  onUpdate={handleEditSuccess}
-  onCancel={() => {
-    // Handle both success and cancel cases
-    fetchMembers(); // Refresh the list
-    setEditModalOpen(false);
-    setSelectedMember(null);
-  }}
-/>
+      <EditMemberModal
+        isOpen={editModalOpen}
+        member={selectedMember}
+        onSuccess={handleEditSuccess}
+        onUpdate={fetchMembers}
+        onCancel={handleEditCancel}
+      />
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal

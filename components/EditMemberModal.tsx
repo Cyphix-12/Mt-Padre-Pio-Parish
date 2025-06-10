@@ -1,7 +1,6 @@
 import { Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
-import { supabase } from '@/utils/supabase';
 
 interface EditMemberModalProps {
   member: any;
@@ -44,69 +43,59 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const validateForm = () => {
+    const requiredFields = ['name', 'gender', 'residence', 'baptized', 'confirmed', 'marriage_status'];
+    const selectFields = ['gender', 'residence', 'baptized', 'confirmed', 'marriage_status'];
+    
+    for (const field of requiredFields) {
+      if (!formData[field as keyof typeof formData] || 
+          (selectFields.includes(field) && formData[field as keyof typeof formData] === 'select')) {
+        return `Please select a valid ${field.replace('_', ' ')}`;
+      }
+    }
+    
+    if (!formData.name.trim()) {
+      return 'Name is required';
+    }
+    
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
 
+    // Validate form
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      // Update waumini table
-      const { error: memberError } = await supabase
-        .from('waumini')
-        .update({
-          name: formData.name,
-          gender: formData.gender,
-          birth_date: formData.birth_date,
-          residence: formData.residence,
-          phone_no: formData.phone_no,
-          occupation: formData.occupation,
-          household: formData.household,
-          household_position: formData.household_position
-        })
-        .eq('member_id', member.id);
+      const response = await fetch(`/api/members/${member.member_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-      if (memberError) throw memberError;
+      const result = await response.json();
 
-      // Update related tables
-      await Promise.all([
-        supabase
-          .from('community')
-          .upsert({
-            member_id: member.id,
-            community: formData.community,
-            zone: formData.zone
-          }),
-        supabase
-          .from('baptized')
-          .upsert({
-            member_id: member.id,
-            baptized: formData.baptized,
-            date_baptized: formData.date_baptized,
-            baptism_no: formData.baptism_no,
-            church_baptized: formData.church_baptized
-          }),
-        supabase
-          .from('confirmation')
-          .upsert({
-            member_id: member.id,
-            confirmed: formData.confirmed,
-            confirmation_date: formData.confirmation_date,
-            confirmation_no: formData.confirmation_no,
-            church_confirmed: formData.church_confirmed
-          }),
-        supabase
-          .from('married')
-          .upsert({
-            member_id: member.id,
-            marriage_status: formData.marriage_status,
-            marriage_date: formData.marriage_date,
-            marriage_no: formData.marriage_no,
-            church_married: formData.church_married
-          })
-      ]);
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update member');
+      }
 
+      // Call the update function to refresh data
       await onUpdate();
+      
+      // Call success callback and close modal
+      onSuccess();
       onCancel();
+      
     } catch (error) {
       console.error('Error updating member:', error);
       setError(error instanceof Error ? error.message : 'Failed to update member');
