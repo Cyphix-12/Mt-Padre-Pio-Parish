@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, User, MapPin, Heart, Calendar, Users } from 'lucide-react';
+import { supabase } from '@/utils/supabase';
 
 interface MemberFormProps {
   onClose: () => void;
@@ -75,10 +76,19 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     }
 
     try {
+      // Check authentication first
+      const { data: { session }, error: authError } = await supabase.auth.getSession();
+      
+      if (authError || !session) {
+        throw new Error('Please sign in to continue');
+      }
+
+      // Use the API endpoint with proper authentication headers
       const response = await fetch('/api/members', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -94,6 +104,8 @@ export default function MemberForm({ onClose }: MemberFormProps) {
       // Show success message for 2 seconds then close
       setTimeout(() => {
         onClose();
+        // Trigger a page refresh to update the data
+        window.location.reload();
       }, 2000);
 
     } catch (error) {
