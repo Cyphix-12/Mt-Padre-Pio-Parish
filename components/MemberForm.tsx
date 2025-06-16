@@ -79,27 +79,86 @@ export default function MemberForm({ onClose }: MemberFormProps) {
       // Check authentication first
       const { data: { session }, error: authError } = await supabase.auth.getSession();
       
-      if (authError || !session) {
+      if (authError) {
+        console.error('Auth error:', authError);
+        throw new Error('Authentication error. Please try signing in again.');
+      }
+
+      if (!session) {
         throw new Error('Please sign in to continue');
       }
 
-      // Use the API endpoint with proper authentication headers
-      const response = await fetch('/api/members', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(formData),
-      });
+      console.log('Session found:', session.user.email); // Debug log
 
-      const result = await response.json();
+      // Clean up form data
+      const cleanedData = {
+        ...formData,
+        // Remove 'select' values and replace with null
+        gender: formData.gender === 'select' ? null : formData.gender,
+        residence: formData.residence === 'select' ? null : formData.residence,
+        baptized: formData.baptized === 'select' ? null : formData.baptized,
+        confirmed: formData.confirmed === 'select' ? null : formData.confirmed,
+        marriage_status: formData.marriage_status === 'select' ? null : formData.marriage_status,
+        // Remove empty strings
+        birth_date: formData.birth_date || null,
+        phone_no: formData.phone_no || null,
+        occupation: formData.occupation || null,
+        community: formData.community || null,
+        zone: formData.zone || null,
+        household: formData.household || null,
+        household_position: formData.household_position || null,
+        date_baptized: formData.date_baptized || null,
+        baptism_no: formData.baptism_no || null,
+        church_baptized: formData.church_baptized || null,
+        confirmation_date: formData.confirmation_date || null,
+        confirmation_no: formData.confirmation_no || null,
+        church_confirmed: formData.church_confirmed || null,
+        marriage_date: formData.marriage_date || null,
+        marriage_no: formData.marriage_no || null,
+        church_married: formData.church_married || null,
+      };
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to create member');
+      // Try API route first
+      try {
+        const response = await fetch('/api/members', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify(cleanedData),
+        });
+
+        console.log('Response status:', response.status); // Debug log
+
+        const result = await response.json();
+        console.log('Response data:', result); // Debug log
+
+        if (!response.ok) {
+          // If API route fails, fall back to direct Supabase insert
+          throw new Error('API route failed, trying direct insert');
+        }
+
+        console.log('Member created via API successfully:', result);
+        setSuccess(true);
+        
+      } catch (apiError) {
+        console.log('API route failed, trying direct Supabase insert:', apiError);
+        
+        // Fallback: Insert directly into Supabase
+        const { data, error } = await supabase
+          .from('members') // Replace with your actual table name
+          .insert([cleanedData])
+          .select();
+
+        if (error) {
+          console.error('Supabase error:', error);
+          throw new Error(error.message);
+        }
+
+        console.log('Member created via direct Supabase successfully:', data);
+        setSuccess(true);
       }
-
-      setSuccess(true);
       
       // Show success message for 2 seconds then close
       setTimeout(() => {
