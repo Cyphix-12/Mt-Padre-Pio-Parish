@@ -3,15 +3,41 @@ import { type NextRequest } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
+// Define the expected structure of the request body
+interface MemberData {
+  name: string;
+  gender: string;
+  birth_date?: string;
+  residence: string;
+  phone_no?: string;
+  occupation?: string;
+  household?: string;
+  household_position?: string;
+  community?: string;
+  zone?: string;
+  baptized: string;
+  date_baptized?: string;
+  baptism_no?: string;
+  church_baptized?: string;
+  confirmed: string;
+  confirmation_date?: string;
+  confirmation_no?: string;
+  church_confirmed?: string;
+  marriage_status: string;
+  marriage_date?: string;
+  marriage_no?: string;
+  church_married?: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     console.log('=== ADD MEMBER API ROUTE CALLED ===');
-    
+
     const supabase = createRouteHandlerClient({ cookies });
-    
+
     // Check authentication
     const { data: { session }, error: authError } = await supabase.auth.getSession();
-    
+
     if (authError) {
       console.error('Auth error:', authError);
       return NextResponse.json({ error: 'Authentication error' }, { status: 401 });
@@ -25,7 +51,7 @@ export async function POST(request: NextRequest) {
     console.log('User authenticated:', session.user.email);
 
     // Parse request body
-    let memberData;
+    let memberData: MemberData;
     try {
       memberData = await request.json();
       console.log('Received member data:', JSON.stringify(memberData, null, 2));
@@ -36,18 +62,18 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     const requiredFields = ['name', 'gender', 'residence', 'baptized', 'confirmed', 'marriage_status'];
-    const missingFields = requiredFields.filter(field => !memberData[field] || memberData[field] === 'select');
-    
+    const missingFields = requiredFields.filter(field => !memberData[field as keyof MemberData] || memberData[field as keyof MemberData] === 'select');
+
     if (missingFields.length > 0) {
       console.error('Missing required fields:', missingFields);
-      return NextResponse.json({ 
-        error: `Missing required fields: ${missingFields.join(', ')}` 
+      return NextResponse.json({
+        error: `Missing required fields: ${missingFields.join(', ')}`
       }, { status: 400 });
     }
 
     console.log('All required fields present, proceeding with database insertion...');
 
-    // Start transaction by creating the main member record
+    // Insert main member record
     const { data: member, error: memberError } = await supabase
       .from('waumini')
       .insert({
@@ -65,18 +91,18 @@ export async function POST(request: NextRequest) {
 
     if (memberError) {
       console.error('Error creating member:', memberError);
-      return NextResponse.json({ 
-        error: `Failed to create member: ${memberError.message}` 
+      return NextResponse.json({
+        error: `Failed to create member: ${memberError.message}`
       }, { status: 500 });
     }
 
     console.log('Member created successfully:', member);
     const memberId = member.member_id;
 
-    // Insert related records
+    // Prepare related inserts
     const promises = [];
 
-    // Community information
+    // Community
     if (memberData.community || memberData.zone) {
       console.log('Inserting community data...');
       promises.push(
@@ -88,7 +114,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Baptism information
+    // Baptism
     console.log('Inserting baptism data...');
     promises.push(
       supabase.from('baptized').insert({
@@ -100,7 +126,7 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    // Confirmation information
+    // Confirmation
     console.log('Inserting confirmation data...');
     promises.push(
       supabase.from('confirmation').insert({
@@ -112,7 +138,7 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    // Marriage information
+    // Marriage
     console.log('Inserting marriage data...');
     promises.push(
       supabase.from('married').insert({
@@ -124,38 +150,34 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    // Execute all related inserts
+    // Execute all inserts
     console.log('Executing all related data inserts...');
     const results = await Promise.all(promises);
-    
-    // Check for errors in any of the related inserts
+
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       if (result.error) {
         console.error(`Error inserting related data (index ${i}):`, result.error);
-        
-        // Clean up the member record if related data failed
         console.log('Cleaning up member record due to related data failure...');
         await supabase.from('waumini').delete().eq('member_id', memberId);
-        
-        return NextResponse.json({ 
-          error: `Failed to create complete member record: ${result.error.message}` 
+
+        return NextResponse.json({
+          error: `Failed to create complete member record: ${result.error.message}`
         }, { status: 500 });
       }
     }
 
     console.log('All data inserted successfully!');
-    
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: 'Member created successfully',
       member: { ...member, member_id: memberId }
     });
 
   } catch (error) {
     console.error('Unexpected error in add-member API:', error);
-    return NextResponse.json({ 
-      error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}` 
+    return NextResponse.json({
+      error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}`
     }, { status: 500 });
   }
 }
