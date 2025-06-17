@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { X, User, MapPin, Heart, Calendar, Users } from 'lucide-react';
 import { supabase } from '@/utils/supabase';
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+
+const supabase = createClientComponentClient();
 
 interface MemberFormProps {
   onClose: () => void;
@@ -69,6 +72,16 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     
     console.log('=== FORM SUBMISSION STARTED ===');
     console.log('Form data:', formData);
+
+   const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+if (!session) {
+  alert("You must be logged in to submit this form.");
+  return;
+}
     
     // Validate form
     const validationError = validateForm();
