@@ -143,10 +143,11 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < results.length; i++) {
       if (results[i].error) {
-        await supabase.from('waumini').delete().eq('member_id', memberId);
-        return NextResponse.json({
-          error: `Failed to create complete member record: ${results[i].error.message}`
-        }, { status: 500 });
+       await supabase.from('waumini').delete().eq('member_id', memberId);
+      return NextResponse.json({
+        error: `Failed to create complete member record: ${results[i].error?.message ?? 'Unknown error'}`
+      }, { status: 500 });
+
       }
     }
 
