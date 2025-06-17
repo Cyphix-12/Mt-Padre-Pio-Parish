@@ -15,13 +15,16 @@ export const supabase = createClient(
   supabaseKey,
   {
     auth: {
-      autoRefreshToken: false,
-      persistSession: true
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true
     }
   }
 );
 
 // Optional: Dev-only logging
 if (process.env.NODE_ENV === 'development') {
-  console.log('Supabase client initialized in development mode');
+  console.log('Supabase client initialized');
+  console.log('URL:', supabaseUrl);
+  console.log('Key prefix:', supabaseKey?.substring(0, 20) + '...');
 }

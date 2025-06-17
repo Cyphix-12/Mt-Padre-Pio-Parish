@@ -67,9 +67,13 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     setError(null);
     setIsSubmitting(true);
     
+    console.log('=== FORM SUBMISSION STARTED ===');
+    console.log('Form data:', formData);
+    
     // Validate form
     const validationError = validateForm();
     if (validationError) {
+      console.error('Validation error:', validationError);
       setError(validationError);
       setIsSubmitting(false);
       return;
@@ -85,12 +89,13 @@ export default function MemberForm({ onClose }: MemberFormProps) {
       }
 
       if (!session) {
+        console.error('No session found');
         throw new Error('Please sign in to continue');
       }
 
-      console.log('Session found:', session.user.email); // Debug log
+      console.log('Session found for user:', session.user.email);
 
-      // Clean up form data
+      // Clean up form data - remove 'select' values and empty strings
       const cleanedData = {
         ...formData,
         // Remove 'select' values and replace with null
@@ -118,47 +123,30 @@ export default function MemberForm({ onClose }: MemberFormProps) {
         church_married: formData.church_married || null,
       };
 
-      // Try API route first
-      try {
-        const response = await fetch('/api/members', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify(cleanedData),
-        });
+      console.log('Cleaned data:', cleanedData);
 
-        console.log('Response status:', response.status); // Debug log
+      // Submit to API
+      console.log('Submitting to /api/add-member...');
+      const response = await fetch('/api/add-member', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(cleanedData),
+      });
 
-        const result = await response.json();
-        console.log('Response data:', result); // Debug log
+      console.log('Response status:', response.status);
 
-        if (!response.ok) {
-          // If API route fails, fall back to direct Supabase insert
-          throw new Error('API route failed, trying direct insert');
-        }
+      const result = await response.json();
+      console.log('Response data:', result);
 
-        console.log('Member created via API successfully:', result);
-        setSuccess(true);
-        
-      } catch (apiError) {
-        console.log('API route failed, trying direct Supabase insert:', apiError);
-        
-        // Fallback: Insert directly into Supabase
-        const { data, error } = await supabase
-          .from('members') // Replace with your actual table name
-          .insert([cleanedData])
-          .select();
-
-        if (error) {
-          console.error('Supabase error:', error);
-          throw new Error(error.message);
-        }
-
-        console.log('Member created via direct Supabase successfully:', data);
-        setSuccess(true);
+      if (!response.ok) {
+        throw new Error(result.error || `Server error: ${response.status}`);
       }
+
+      console.log('Member created successfully:', result);
+      setSuccess(true);
       
       // Show success message for 2 seconds then close
       setTimeout(() => {
@@ -649,7 +637,17 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                       : 'hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 shadow-lg'
                   }`}
                 >
-                  {isSubmitting ? 'Saving...' : 'Save Member'}
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Saving...
+                    </span>
+                  ) : (
+                    'Save Member'
+                  )}
                 </button>
               ) : (
                 <button
