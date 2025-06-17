@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, User, MapPin, Heart, Calendar, Users } from 'lucide-react';
-import { supabase } from '@/utils/supabase';
+import { supabase as supabaseClient } from '@/utils/supabase';
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 const supabase = createClientComponentClient();
