@@ -149,13 +149,14 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
         },
         body: JSON.stringify(formData),
       });
-      */
+      
 
       const result = await response.json();
 
       if (!response.ok) {
         throw new Error(result.error || 'Failed to update member');
       }
+      */
 
       // Call the update function to refresh data
       await onUpdate();
