@@ -75,7 +75,64 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
       return;
     }
 
+    
     try {
+      // Update waumini table
+      const { error: memberError } = await supabase
+        .from('waumini')
+        .update({
+          name: formData.name,
+          gender: formData.gender,
+          birth_date: formData.birth_date,
+          residence: formData.residence,
+          phone_no: formData.phone_no,
+          occupation: formData.occupation,
+          household: formData.household,
+          household_position: formData.household_position
+        })
+        .eq('member_id', member.id);
+
+      if (memberError) throw memberError;
+
+      // Update related tables
+      await Promise.all([
+        supabase
+          .from('community')
+          .upsert({
+            member_id: member.id,
+            community: formData.community,
+            zone: formData.zone
+          }),
+        supabase
+          .from('baptized')
+          .upsert({
+            member_id: member.id,
+            baptized: formData.baptized,
+            date_baptized: formData.date_baptized,
+            baptism_no: formData.baptism_no,
+            church_baptized: formData.church_baptized
+          }),
+        supabase
+          .from('confirmation')
+          .upsert({
+            member_id: member.id,
+            confirmed: formData.confirmed,
+            confirmation_date: formData.confirmation_date,
+            confirmation_no: formData.confirmation_no,
+            church_confirmed: formData.church_confirmed
+          }),
+        supabase
+          .from('married')
+          .upsert({
+            member_id: member.id,
+            marriage_status: formData.marriage_status,
+            marriage_date: formData.marriage_date,
+            marriage_no: formData.marriage_no,
+            church_married: formData.church_married
+          })
+      ]);
+
+   /* try {
       // Check authentication first
       const { data: { session }, error: authError } = await supabase.auth.getSession();
       
@@ -92,6 +149,7 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
         },
         body: JSON.stringify(formData),
       });
+      */
 
       const result = await response.json();
 
