@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { supabase } from '@/utils/supabase';
 import { X, User, MapPin, Heart, Calendar, Users } from 'lucide-react';
 
 interface MemberFormProps {
