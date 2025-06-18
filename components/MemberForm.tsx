@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { X, User, MapPin, Heart, Calendar, Users } from 'lucide-react';
-import { supabase as supabaseClient } from '@/utils/supabase';
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-
-const supabase = createClientComponentClient();
+import { supabase } from '@/utils/supabase';
 
 interface MemberFormProps {
   onClose: () => void;
@@ -73,7 +70,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     console.log('=== FORM SUBMISSION STARTED ===');
     console.log('Form data:', formData);
 
-    try {
+    /*try {
       // Check authentication first - CRITICAL SESSION CHECK
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
@@ -87,7 +84,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
         throw new Error('You must be logged in to submit this form. Please sign in and try again.');
       }
 
-      console.log('Session found for user:', session.user.email);
+     */ console.log('Session found for user:', session.user.email);
 
       // Validate form
       const validationError = validateForm();
@@ -128,7 +125,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
       console.log('Cleaned data:', cleanedData);
 
       // Submit to API
-      console.log('Submitting to /api/add-member...');
+      /*console.log('Submitting to /api/add-member...');
       const response = await fetch('/api/add-member', {
         method: 'POST',
         headers: {
@@ -148,7 +145,8 @@ export default function MemberForm({ onClose }: MemberFormProps) {
       }
 
       console.log('Member created successfully:', result);
-      setSuccess(true);
+      setSuccess(true); 
+      */
       
       // Show success message for 2 seconds then close
       setTimeout(() => {
