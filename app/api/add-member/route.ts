@@ -52,13 +52,20 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    // CRITICAL SESSION CHECK - Validate session before proceeding
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-    if (userError || !user) {
+    if (sessionError) {
+      console.error('Session error:', sessionError);
+      return NextResponse.json({ error: 'Authentication error - Please sign in again' }, { status: 401 });
+    }
+
+    if (!session) {
+      console.error('No session found');
       return NextResponse.json({ error: 'Unauthorized - Please sign in' }, { status: 401 });
     }
 
-    console.log('User authenticated:', user.email);
+    console.log('Session validated for user:', session.user.email);
 
     // Parse request body
     let memberData: MemberData;
@@ -96,6 +103,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (memberError) {
+      console.error('Member creation error:', memberError);
       return NextResponse.json({ error: `Failed to create member: ${memberError.message}` }, { status: 500 });
     }
 
@@ -143,13 +151,16 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < results.length; i++) {
       if (results[i].error) {
-       await supabase.from('waumini').delete().eq('member_id', memberId);
-      return NextResponse.json({
-        error: `Failed to create complete member record: ${results[i].error?.message ?? 'Unknown error'}`
-      }, { status: 500 });
-
+        console.error(`Related data insertion error at index ${i}:`, results[i].error);
+        // Rollback: Delete the member record if related data failed
+        await supabase.from('waumini').delete().eq('member_id', memberId);
+        return NextResponse.json({
+          error: `Failed to create complete member record: ${results[i].error?.message ?? 'Unknown error'}`
+        }, { status: 500 });
       }
     }
+
+    console.log('Member created successfully with ID:', memberId);
 
     return NextResponse.json({
       success: true,
@@ -158,6 +169,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
+    console.error('Unexpected error in add-member route:', error);
     return NextResponse.json({
       error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}`
     }, { status: 500 });

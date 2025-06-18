@@ -73,40 +73,29 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     console.log('=== FORM SUBMISSION STARTED ===');
     console.log('Form data:', formData);
 
-   const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-if (!session) {
-  alert("You must be logged in to submit this form.");
-  return;
-}
-    
-    // Validate form
-    const validationError = validateForm();
-    if (validationError) {
-      console.error('Validation error:', validationError);
-      setError(validationError);
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      // Check authentication first
-      const { data: { session }, error: authError } = await supabase.auth.getSession();
+      // Check authentication first - CRITICAL SESSION CHECK
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (authError) {
-        console.error('Auth error:', authError);
+      if (sessionError) {
+        console.error('Session error:', sessionError);
         throw new Error('Authentication error. Please try signing in again.');
       }
 
       if (!session) {
         console.error('No session found');
-        throw new Error('Please sign in to continue');
+        throw new Error('You must be logged in to submit this form. Please sign in and try again.');
       }
 
       console.log('Session found for user:', session.user.email);
+
+      // Validate form
+      const validationError = validateForm();
+      if (validationError) {
+        console.error('Validation error:', validationError);
+        setError(validationError);
+        return;
+      }
 
       // Clean up form data - remove 'select' values and empty strings
       const cleanedData = {
@@ -172,6 +161,7 @@ if (!session) {
       console.error('Error creating member:', error);
       setError(error instanceof Error ? error.message : 'Failed to create member');
     } finally {
+      // CRITICAL: Always reset loading state
       setIsSubmitting(false);
     }
   };
