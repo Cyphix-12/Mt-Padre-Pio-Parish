@@ -48,7 +48,7 @@ export default function UserManagement() {
 
       const usersWithRoles = fetchedUsers.map((user) => ({
         ...user,
-        role: userRoles?.find(ur => ur.user_id === user.id)?.roles?.[0]?.name || null
+        role: userRoles?.find(ur => ur.user_id === user.id)?.roles?.name
       }));
 
       setUsers(usersWithRoles);
