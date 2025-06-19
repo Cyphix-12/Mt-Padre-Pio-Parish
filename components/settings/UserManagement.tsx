@@ -42,28 +42,20 @@ export default function UserManagement() {
       const fetchedUsers = await fetchUsers();
 
       const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('user_id, roles (name)')
+        .from('user_with_role')
+        .select('user_id, role_name')
         .order('user_id');
 
   const usersWithRoles = fetchedUsers.map((user) => {
   const userRoleEntry = userRoles?.find((ur) => ur.user_id === user.id);
-
-  let roleNames = "No roles";
-  const roleData = userRoleEntry?.roles;
-
-  if (Array.isArray(roleData)) {
-    roleNames = roleData.map((r: any) => r.name).join(", ");
-  } else if (roleData && typeof roleData === "object") {
-    roleNames = (roleData as { name: string }).name;
-
-  }
+  const roleName = userRoleEntry?.role_name || "No roles";
 
   return {
     ...user,
-    role: roleNames,
+    role: roleName
   };
 });
+
 
 
 
