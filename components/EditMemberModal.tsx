@@ -323,7 +323,7 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
     if (member?.member_id || member?.id) {
       fetchMemberData(member.member_id || member.id);
     }
-  //};
+  };
 
   return (
     <Dialog open={isOpen} onClose={onCancel} className="fixed inset-0 z-[100]">
