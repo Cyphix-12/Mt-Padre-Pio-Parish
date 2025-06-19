@@ -49,12 +49,15 @@ export default function UserManagement() {
       };
       
       const { data: userRoles } = await supabase
-        .from<UserWithRole, UserWithRole>('user_with_role')
+        .from('user_with_role')
         .select('user_id, role_name, role_id')
         .order('user_id');
+      
+      const userRoles = data as UserWithRole[]; // ✅ Cast here
+      
       if (error) {
-  console.error("Error fetching user roles:", error);
-  }
+        console.error("Error fetching user roles:", error);
+        }
 
   const usersWithRoles = fetchedUsers.map((user) => {
     const userRoleEntry = userRoles?.find((ur) => ur.user_id === user.id);
