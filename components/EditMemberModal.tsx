@@ -246,7 +246,7 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
         supabase.from('community').upsert({
           member_id: member.member_id || member.id,
           community: formData.community || null,
-          zone: formData.zone || null
+          zone: formData.zone || null,
           end_of_parish_membership: formData.membershipStatus === 'Inactive - Death' ? formData.endDate : null,
           date_of_death: formData.membershipStatus === 'Inactive - Death' ? formData.endDate : null
         }, {
