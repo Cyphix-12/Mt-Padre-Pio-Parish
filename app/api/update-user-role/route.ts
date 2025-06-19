@@ -11,6 +11,7 @@ const adminClient = createClient(
 export async function POST(req: NextRequest) {
   try {
     const { userId, roleId } = await req.json();
+    console.log('Received update role request:', { userId, roleId });
 
     if (!userId) {
       return NextResponse.json(
@@ -40,10 +41,10 @@ export async function POST(req: NextRequest) {
         .insert({ user_id: userId, role_id: roleId });
 
       if (insertError) {
-        console.error('Error inserting new role:', insertError);
+        console.error('Insert failed:', insertError);
         return NextResponse.json(
-          { error: 'Failed to assign new role' },
-          { status: 500 }
+        { error: 'Failed to assign new role' },
+        { status: 500 }
         );
       }
     }
