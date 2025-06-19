@@ -47,18 +47,23 @@ export default function UserManagement() {
         .order('user_id');
 
   const usersWithRoles = fetchedUsers.map((user) => {
-    const userRoleEntry = userRoles?.find((ur) => ur.user_id === user.id);
-  
-    let roleNames = "No roles";
-    if (userRoleEntry && Array.isArray(userRoleEntry.roles)) {
-    roleNames = userRoleEntry.roles.map((r: any) => r.name).join(", ");
-   }
+  const userRoleEntry = userRoles?.find((ur) => ur.user_id === user.id);
+
+  let roleNames = "No roles";
+  const roleData = userRoleEntry?.roles;
+
+  if (Array.isArray(roleData)) {
+    roleNames = roleData.map((r: any) => r.name).join(", ");
+  } else if (roleData && typeof roleData === "object") {
+    roleNames = roleData.name;
+  }
 
   return {
     ...user,
     role: roleNames,
   };
 });
+
 
 
 
