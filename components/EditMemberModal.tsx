@@ -35,6 +35,8 @@ interface MemberData {
   marriage_date: string;
   marriage_no: string;
   church_married: string;
+  end_of_parish_membership: string;
+  date_of_death: string;
 }
 
 export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, onUpdate }: EditMemberModalProps) {
@@ -60,7 +62,9 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
     marriage_status: 'select',
     marriage_date: '',
     marriage_no: '',
-    church_married: ''
+    church_married: '',
+    end_of_parish_membership: 'select',
+    date_of_death: ''
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -119,7 +123,9 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
         marriage_status: memberData.marriage_status || 'select',
         marriage_date: memberData.marriage_date || '',
         marriage_no: memberData.marriage_no || '',
-        church_married: memberData.church_married || ''
+        church_married: memberData.church_married || '',
+        end_of_parish_membership: memberData.end_of_parish_membership || 'select',
+        date_of_death: memeberData.date_of_death ''
       };
 
       setFormData(formattedData);
@@ -169,7 +175,9 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
         marriage_status: 'select',
         marriage_date: '',
         marriage_no: '',
-        church_married: ''
+        church_married: '',
+        end_of_parish_membership: 'select',
+        date_of_death: ''
       });
       setError(null);
       setFetchError(null);
@@ -239,6 +247,8 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
           member_id: member.member_id || member.id,
           community: formData.community || null,
           zone: formData.zone || null
+          end_of_parish_membership: formData.membershipStatus === 'Inactive - Death' ? formData.endDate : null,
+          date_of_death: formData.membershipStatus === 'Inactive - Death' ? formData.endDate : null
         }, {
           onConflict: 'member_id'
         })
@@ -745,6 +755,36 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
               </form>
             )}
           </div>
+          <div className="space-y-6">
+        <h4 className="text-lg font-semibold text-pink-800">Membership Status</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">Membership Status *</label>
+            <select
+              name="membershipStatus"
+              value={formData.membershipStatus}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
+              required
+            >
+              <option value="select">Select Membership Status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive - Death">Inactive - Death</option>
+              <option value="Inactive - Moved">Inactive - Moved</option>
+            </select>
+          </div>
+          {formData.membershipStatus === 'Inactive - Death' && (
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">Date *</label>
+              <input
+                type="date"
+                name="endDate"
+                value={formData.endDate}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
+                required={formData.membershipStatus === 'Inactive - Death'}
+              />
+            </div>
           
           {/* Footer - Only show when not loading and no fetch error */}
           {!isLoading && !fetchError && (
