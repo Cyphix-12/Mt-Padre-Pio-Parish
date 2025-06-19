@@ -42,9 +42,15 @@ export default function UserManagement() {
       setLoading(true);
       const fetchedUsers = await fetchUsers();
 
+      type UserWithRole = {
+        user_id: string;
+        role_id: string;
+        role_name: string;
+      };
+      
       const { data: userRoles } = await supabase
-        .from('user_with_role')
-        .select('user_id, role_name')
+        .from<UserWithRole>('user_with_role')
+        .select('user_id, role_name, role_id')
         .order('user_id');
 
   const usersWithRoles = fetchedUsers.map((user) => {
