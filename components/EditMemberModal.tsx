@@ -64,7 +64,9 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
     marriage_no: '',
     church_married: '',
     end_of_parish_membership: 'select',
-    date_of_death: ''
+    date_of_death: '',
+    membershipStatus: 'select',
+    endDate: ''
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -125,7 +127,9 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
         marriage_no: memberData.marriage_no || '',
         church_married: memberData.church_married || '',
         end_of_parish_membership: memberData.end_of_parish_membership || 'select',
-        date_of_death: memberData.date_of_death || ''
+        date_of_death: memberData.date_of_death || '',
+        membershipStatus: memberData.date_of_death ? 'Inactive - Death' : 'Active',
+        endDate: memberData.date_of_death || ''
       };
 
       setFormData(formattedData);
@@ -177,7 +181,9 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
         marriage_no: '',
         church_married: '',
         end_of_parish_membership: 'select',
-        date_of_death: ''
+        date_of_death: '',
+        membershipStatus: 'select',
+        endDate: ''
       });
       setError(null);
       setFetchError(null);
@@ -324,6 +330,7 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
       fetchMemberData(member.member_id || member.id);
     }
   };
+
 
   return (
     <Dialog open={isOpen} onClose={onCancel} className="fixed inset-0 z-[100]">
