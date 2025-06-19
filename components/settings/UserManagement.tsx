@@ -48,12 +48,12 @@ export default function UserManagement() {
         role_name: string;
       };
       
-      const { data: userRoles } = await supabase
+      const { data } = await supabase
+         const userRoles = data as UserWithRole[]; // ✅ Cast here
         .from('user_with_role')
         .select('user_id, role_name, role_id')
         .order('user_id');
       
-      const userRoles = data as UserWithRole[]; // ✅ Cast here
       
       if (error) {
         console.error("Error fetching user roles:", error);
