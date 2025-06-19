@@ -55,6 +55,7 @@ export default function UserManagement() {
       ...user,
        role: userRoleEntry?.role_name || "No roles",
       roleId: userRoleEntry?.role_id || null, // ADD THIS
+      order('user_id');
     };
   });
 
