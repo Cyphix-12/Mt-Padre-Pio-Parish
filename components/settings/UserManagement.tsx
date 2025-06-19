@@ -13,6 +13,7 @@ interface User {
   created_at: string;
   last_sign_in_at: string;
   role?: string | null; // Added this line to fix the TypeScript error
+  roleId?: string | null; // ADD THIS
 }
 
 export default function UserManagement() {
@@ -47,14 +48,15 @@ export default function UserManagement() {
         .order('user_id');
 
   const usersWithRoles = fetchedUsers.map((user) => {
-  const userRoleEntry = userRoles?.find((ur) => ur.user_id === user.id);
-  const roleName = userRoleEntry?.role_name || "No roles";
+    const userRoleEntry = userRoles?.find((ur) => ur.user_id === user.id);
+    const roleName = userRoleEntry?.role_name || "No roles";
 
-  return {
-    ...user,
-    role: roleName
-  };
-});
+    return {
+      ...user,
+       role: userRoleEntry?.role_name || "No roles",
+      roleId: userRoleEntry?.role_id || null, // ADD THIS
+    };
+  });
 
 
 
@@ -304,8 +306,8 @@ export default function UserManagement() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
-                      value={roles.find(r => r.name === user.role)?.id || ''}
-                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                        value={user.roleId || ''}
+                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
                       className="rounded-lg border border-gray-300 px-3 py-1.5 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="">No Role</option>
