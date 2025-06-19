@@ -125,7 +125,7 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
         marriage_no: memberData.marriage_no || '',
         church_married: memberData.church_married || '',
         end_of_parish_membership: memberData.end_of_parish_membership || 'select',
-        date_of_death: memeberData.date_of_death ''
+        date_of_death: memberData.date_of_death || ''
       };
 
       setFormData(formattedData);
