@@ -55,7 +55,8 @@ export default function UserManagement() {
   if (Array.isArray(roleData)) {
     roleNames = roleData.map((r: any) => r.name).join(", ");
   } else if (roleData && typeof roleData === "object") {
-    roleNames = roleData.name;
+    roleNames = (roleData as { name: string }).name;
+
   }
 
   return {
