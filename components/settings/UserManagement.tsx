@@ -132,28 +132,53 @@ export default function UserManagement() {
   }
 
   async function handleDeleteUser(userId: string) {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+  if (!confirm('Are you sure you want to delete this user?')) return;
 
-    try {
-      const response = await fetch('/api/delete-user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId })
-      });
+  try {
+    // Get access token from supabase auth session
+    const session = supabase.auth.getSession();
+    const accessToken = (await session).data.session?.access_token;
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to delete user');
-      }
-
-      await loadUsers();
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      setError(error instanceof Error ? error.message : 'Failed to delete user');
+    if (!accessToken) {
+      throw new Error('You must be logged in to delete users');
     }
+
+    // For demonstration, let's say your CSRF token is stored in a cookie named 'csrf-token'
+    const csrfToken = getCookie('csrf-token'); // you need to implement getCookie or however you store it
+
+    if (!csrfToken) {
+      throw new Error('CSRF token is missing');
+    }
+
+    const response = await fetch('/api/delete-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+        'x-csrf-token': csrfToken,
+      },
+      body: JSON.stringify({ userId }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Failed to delete user');
+    }
+
+    await loadUsers();
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    setError(error instanceof Error ? error.message : 'Failed to delete user');
   }
+}
+
+// Helper to get cookie value by name
+function getCookie(name: string) {
+  const matches = document.cookie.match(new RegExp(
+    '(?:^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') + '=([^;]*)'
+  ));
+  return matches ? decodeURIComponent(matches[1]) : undefined;
+}
 
   async function handleRoleChange(userId: string, roleId: string) {
     try {
