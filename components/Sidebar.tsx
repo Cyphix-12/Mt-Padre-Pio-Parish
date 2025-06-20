@@ -9,7 +9,6 @@ import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageSwitch from '@/components/LanguageSwitch';
 
-const { t } = useLanguage();
 
 const adminMenuItems = [
   { name: t('Dashboard'), icon: Home, href: '/', badge: null },
@@ -34,6 +33,7 @@ export default function Sidebar() {
   const [isHovered, setIsHovered] = useState(false);
   const [currentPath, setCurrentPath] = useState('/');
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const checkUserRole = async () => {
