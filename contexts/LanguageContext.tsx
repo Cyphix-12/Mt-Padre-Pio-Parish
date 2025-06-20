@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { getTranslation } from '@/utils/translations';
 
 type Language = 'en' | 'sw';
 
@@ -16,25 +17,24 @@ interface LanguageProviderProps {
   children: ReactNode;
 }
 
-// Import translations
-import { getTranslation } from '@/utils/translations';
-
 export function LanguageProvider({ children }: LanguageProviderProps) {
   const [language, setLanguage] = useState<Language>('en');
 
+  // Load saved language from localStorage on mount
   useEffect(() => {
-    // Load saved language preference
     const savedLanguage = localStorage.getItem('preferred-language') as Language;
     if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'sw')) {
       setLanguage(savedLanguage);
     }
   }, []);
 
+  // Function to change language and save to localStorage
   const handleSetLanguage = (newLanguage: Language) => {
     setLanguage(newLanguage);
     localStorage.setItem('preferred-language', newLanguage);
   };
 
+  // Translation function using current language
   const t = (key: string): string => {
     return getTranslation(key, language);
   };
@@ -46,6 +46,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   );
 }
 
+// Custom hook to use language context in components
 export function useLanguage() {
   const context = useContext(LanguageContext);
   if (context === undefined) {
