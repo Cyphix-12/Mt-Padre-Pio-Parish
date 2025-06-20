@@ -47,8 +47,26 @@ const userMenuItems = [
   }, []);
 
   const menuItems = useMemo(() => {
-    return userRole === 'Admin' ? adminMenuItems : userMenuItems;
-  }, [userRole]);
+    //return userRole === 'Admin' ? adminMenuItems : userMenuItems;
+    if (userRole === 'Admin') {
+    return [
+      { name: t('dashboard'), icon: Home, href: '/', badge: null },
+      { name: t('report'), icon: FileText, href: '/reports', badge: '12' },
+      { name: t('leaders'), icon: UserCheck, href: '/leaders', badge: null },
+      { name: t('zoneAndCommunity'), icon: Users, href: '/zones', badge: '3' },
+      { name: t('settings'), icon: Settings, href: '/settings', badge: null },
+    ];
+  } else {
+    return [
+      { name: t('dashboard'), icon: Home, href: '/', badge: null },
+      { name: t('report'), icon: FileText, href: '/reports', badge: '5' },
+      { name: t('leaders'), icon: UserCheck, href: '/leaders', badge: null },
+      { name: t('zoneAndCommunity'), icon: Users, href: '/zones', badge: null },
+    ];
+  }
+}, [userRole, t]);
+
+  }, [userRole, t]);
 
   const checkScreenSize = useCallback(() => {
     const width = window.innerWidth;
