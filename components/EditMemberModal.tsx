@@ -331,7 +331,6 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
     }
   };
 
-
   return (
     <Dialog open={isOpen} onClose={onCancel} className="fixed inset-0 z-[100]">
       <div className="flex items-center justify-center min-h-screen p-4 md:p-6 lg:p-8">
@@ -759,40 +758,52 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                     </div>
                   </div>
                 </div>
+
+                {/* Membership Status */}
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                      <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900">Membership Status</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Membership Status *</label>
+                      <select
+                        name="membershipStatus"
+                        value={formData.membershipStatus}
+                        onChange={handleChange}
+                        className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
+                        required
+                      >
+                        <option value="select">Select Membership Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive - Death">Inactive - Death</option>
+                        <option value="Inactive - Moved">Inactive - Moved</option>
+                      </select>
+                    </div>
+                    {formData.membershipStatus === 'Inactive - Death' && (
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">Date *</label>
+                        <input
+                          type="date"
+                          name="endDate"
+                          value={formData.endDate}
+                          onChange={handleChange}
+                          className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
+                          required={formData.membershipStatus === 'Inactive - Death'}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
               </form>
             )}
           </div>
-          <div className="space-y-6">
-        <h4 className="text-lg font-semibold text-pink-800">Membership Status</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">Membership Status *</label>
-            <select
-              name="membershipStatus"
-              value={formData.membershipStatus}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
-              required
-            >
-              <option value="select">Select Membership Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive - Death">Inactive - Death</option>
-              <option value="Inactive - Moved">Inactive - Moved</option>
-            </select>
-          </div>
-          {formData.membershipStatus === 'Inactive - Death' && (
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Date *</label>
-              <input
-                type="date"
-                name="endDate"
-                value={formData.endDate}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                required={formData.membershipStatus === 'Inactive - Death'}
-              />
-            </div>
-          
+
           {/* Footer - Only show when not loading and no fetch error */}
           {!isLoading && !fetchError && (
             <div className="sticky bottom-0 bg-gray-50 px-6 lg:px-8 py-6 border-t border-gray-200 rounded-b-2xl">

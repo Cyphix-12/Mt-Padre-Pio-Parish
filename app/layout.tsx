@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 const poppins = Poppins({ 
   weight: ['400', '500', '600', '700'],
@@ -32,10 +33,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-      <html lang="en">
-        <body className={poppins.className}>
+    <html lang="en">
+      <body className={poppins.className}>
+        <LanguageProvider>
           {children}
-        </body>
-      </html>
+        </LanguageProvider>
+      </body>
+    </html>
   );
 }
