@@ -6,10 +6,13 @@ import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import DashboardStats from '@/components/DashboardStats';
 import DashboardCharts from '@/components/DashboardCharts';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSwitch from '@/components/LanguageSwitch';
 
 const FADE_IN_ANIMATION = 'animate-[fadeIn_0.5s_ease-in-out]';
 
 export default function Home() {
+  const { t } = useLanguage();
   const router = useRouter();
   
   useEffect(() => {
