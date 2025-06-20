@@ -117,6 +117,7 @@ export function getTranslation(key: string, language: 'en' | 'sw' = 'en'): strin
   return translations[key]?.[language] || key;
 }
 
-export function useTranslation(language: 'en' | 'sw' = 'en') {
+/*export function useTranslation(language: 'en' | 'sw' = 'en') {
   return (key: string) => getTranslation(key, language);
 }
+*/
