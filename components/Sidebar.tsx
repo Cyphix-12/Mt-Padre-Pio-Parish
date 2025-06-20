@@ -7,6 +7,8 @@ import { Home, FileText, Users, UserCheck, Settings, Menu, X, ChevronLeft } from
 import { getUserRole } from '@/utils/auth';
 import Image from 'next/image';
 
+const { t } = useLanguage();
+
 const adminMenuItems = [
   { name: 'Dashboard', icon: Home, href: '/', badge: null },
   { name: 'Report', icon: FileText, href: '/reports', badge: '12' },
@@ -131,8 +133,8 @@ export default function Sidebar() {
               </div>
               {shouldShowExpanded && (
                 <div className="text-slate-800 font-bold text-sm leading-tight animate-fade-in">
-                  <div className="text-blue-700">Parokia ya</div>
-                  <div className="text-slate-700">Mt. Padre Pio</div>
+                  <div className="text-blue-700">{t('Parokia ya')}</div>
+                  <div className="text-slate-700">{t('Mt. Padre Pio')}</div>
                 </div>
               )}
             </div>
@@ -215,7 +217,7 @@ export default function Sidebar() {
             <div className="mt-8 pt-6 border-t border-white/20 animate-fade-in">
               <div className="flex items-center gap-3 px-2 py-3 rounded-lg bg-white/10 border border-white/20">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
-                <span className="text-sm text-blue-100 font-medium">System Online</span>
+                <span className="text-sm text-blue-100 font-medium">{t('System Online')}</span>
               </div>
             </div>
           )}
