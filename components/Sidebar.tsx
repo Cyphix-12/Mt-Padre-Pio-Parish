@@ -11,16 +11,9 @@ import LanguageSwitch from '@/components/LanguageSwitch';
 
 
 export default function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
-  const [userRole, setUserRole] = useState('Admin');
-  const [isHovered, setIsHovered] = useState(false);
-  const [currentPath, setCurrentPath] = useState('/');
-  const sidebarRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
 
-  const adminMenuItems = [
+   const adminMenuItems = [
   { name: t('Dashboard'), icon: Home, href: '/', badge: null },
   { name: t('Report'), icon: FileText, href: '/reports', badge: '12' },
   { name: t('Leaders'), icon: UserCheck, href: '/leaders', badge: null },
@@ -34,6 +27,15 @@ const userMenuItems = [
   { name: t('Leaders'), icon: UserCheck, href: '/leaders', badge: null },
   { name: t('Zone & Community'), icon: Users, href: '/zones', badge: null },
 ];
+  
+  const [isOpen, setIsOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  const [userRole, setUserRole] = useState('Admin');
+  const [isHovered, setIsHovered] = useState(false);
+  const [currentPath, setCurrentPath] = useState('/');
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  
 
   useEffect(() => {
     const checkUserRole = async () => {
