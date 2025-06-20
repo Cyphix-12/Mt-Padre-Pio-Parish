@@ -6,22 +6,24 @@ import { usePathname } from 'next/navigation';
 import { Home, FileText, Users, UserCheck, Settings, Menu, X, ChevronLeft } from 'lucide-react';
 import { getUserRole } from '@/utils/auth';
 import Image from 'next/image';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSwitch from '@/components/LanguageSwitch';
 
 const { t } = useLanguage();
 
 const adminMenuItems = [
-  { name: 'Dashboard', icon: Home, href: '/', badge: null },
-  { name: 'Report', icon: FileText, href: '/reports', badge: '12' },
-  { name: 'Leaders', icon: UserCheck, href: '/leaders', badge: null },
-  { name: 'Zone & Community', icon: Users, href: '/zones', badge: '3' },
-  { name: 'Settings', icon: Settings, href: '/settings', badge: null },
+  { name: {t('Dashboard')}, icon: Home, href: '/', badge: null },
+  { name: {t('Report')}, icon: FileText, href: '/reports', badge: '12' },
+  { name: {t('Leaders')}, icon: UserCheck, href: '/leaders', badge: null },
+  { name: {t('Zone & Community')}, icon: Users, href: '/zones', badge: '3' },
+  { name: {t('Settings')}, icon: Settings, href: '/settings', badge: null },
 ];
 
 const userMenuItems = [
-  { name: 'Dashboard', icon: Home, href: '/', badge: null },
-  { name: 'Report', icon: FileText, href: '/reports', badge: '5' },
-  { name: 'Leaders', icon: UserCheck, href: '/leaders', badge: null },
-  { name: 'Zone & Community', icon: Users, href: '/zones', badge: null },
+  { name: {t('Dashboard')}, icon: Home, href: '/', badge: null },
+  { name: {t('Report')}, icon: FileText, href: '/reports', badge: '5' },
+  { name: {t('Leaders')}, icon: UserCheck, href: '/leaders', badge: null },
+  { name: {t('Zone & Community')}, icon: Users, href: '/zones', badge: null },
 ];
 
 export default function Sidebar() {
