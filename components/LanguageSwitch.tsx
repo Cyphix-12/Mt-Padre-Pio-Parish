@@ -1,27 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface LanguageSwitchProps {
-  onLanguageChange?: (language: string) => void;
   className?: string;
 }
 
-const LanguageSwitch: React.FC<LanguageSwitchProps> = ({ 
-  onLanguageChange, 
-  className = '' 
-}) => {
-  const [language, setLanguage] = useState('en');
+const LanguageSwitch: React.FC<LanguageSwitchProps> = ({ className = '' }) => {
+  const { language, setLanguage } = useLanguage();
 
-  // Load saved language preference on mount
-  useEffect(() => {
-    const savedLanguage = localStorage.getItem('preferred-language') || 'en';
-    setLanguage(savedLanguage);
-    onLanguageChange?.(savedLanguage);
-  }, [onLanguageChange]);
-
-  const handleLanguageChange = (newLanguage: string) => {
-    setLanguage(newLanguage);
-    localStorage.setItem('preferred-language', newLanguage);
-    onLanguageChange?.(newLanguage);
+  const handleLanguageChange = (newLanguage: 'en' | 'sw') => {
+    if (language !== newLanguage) {
+      setLanguage(newLanguage);
+    }
   };
 
   return (
