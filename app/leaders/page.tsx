@@ -3,6 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import LeaderTable from '@/components/LeaderTable';
+import LanguageSwitch from '@/components/LanguageSwitch';
 
 export default function LeadersPage() {
   const { t } = useLanguage();
