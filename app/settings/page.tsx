@@ -1,3 +1,5 @@
+'use client';
+
 import { useLanguage } from '@/contexts/LanguageContext';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
