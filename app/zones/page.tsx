@@ -3,6 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import ZoneTable from '@/components/ZoneTable';
+import LanguageSwitch from '@/components/LanguageSwitch';
 
 export default function ZonesPage() {
   const { t } = useLanguage();
