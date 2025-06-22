@@ -2,6 +2,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import SettingsContent from '@/components/SettingsContent';
+import LanguageSwitch from '@/components/LanguageSwitch';
 
 export default function SettingsPage() {
   const { t } = useLanguage();
