@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, Edit3, Trash2, User, Phone, MapPin, Home, Church, Calendar, Users, Award, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/utils/supabase';
 import { getUserRole } from '@/utils/auth';
+import { useLanguage } from '@/contexts/LanguageContext';
 import EditMemberModal from '@/components/EditMemberModal';
 
 interface Member {
@@ -46,6 +47,8 @@ interface DeleteConfirmationModalProps {
 }
 
 function DeleteConfirmationModal({ isOpen, member, onConfirm, onCancel, isDeleting }: DeleteConfirmationModalProps) {
+  const { t } = useLanguage();
+  
   if (!isOpen) return null;
 
   return (
@@ -57,7 +60,7 @@ function DeleteConfirmationModal({ isOpen, member, onConfirm, onCancel, isDeleti
               <AlertTriangle className="w-6 h-6 text-red-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Delete Member</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('delete')} {t('Members')}</h3>
               <p className="text-sm text-gray-500">This action cannot be undone</p>
             </div>
           </div>
@@ -79,7 +82,7 @@ function DeleteConfirmationModal({ isOpen, member, onConfirm, onCancel, isDeleti
               disabled={isDeleting}
               className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors disabled:opacity-50"
             >
-              Cancel
+              {t('Cancel')}
             </button>
             <button
               onClick={onConfirm}
@@ -94,7 +97,7 @@ function DeleteConfirmationModal({ isOpen, member, onConfirm, onCancel, isDeleti
               ) : (
                 <>
                   <Trash2 className="w-4 h-4" />
-                  Delete
+                  {t('delete')}
                 </>
               )}
             </button>
@@ -184,6 +187,7 @@ function StatusBadge({ status, type }: StatusBadgeProps) {
 }
 
 export default function ReportTable({ filters, searchQuery }: ReportTableProps) {
+  const { t } = useLanguage();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -316,7 +320,7 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
     return (
       <div className="bg-white rounded-3xl shadow-sm p-8 text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading members...</p>
+        <p className="mt-4 text-gray-600">{t('Loading members...')}</p>
       </div>
     );
   }
@@ -328,8 +332,8 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Users className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No members found</h3>
-          <p className="text-gray-500">Try adjusting your search criteria or filters.</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('No members found')}</h3>
+          <p className="text-gray-500">{t('Try adjusting your search criteria or filters.')}</p>
         </div>
       </div>
     );
@@ -344,7 +348,7 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-indigo-600" />
               <span className="font-semibold text-gray-900">
-                {members.length} member{members.length !== 1 ? 's' : ''} found
+                {members.length} {t('Members').toLowerCase()} found
               </span>
             </div>
           </div>
@@ -379,7 +383,7 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
                     className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-200 backdrop-blur-sm border border-white/20"
                   >
                     <Edit3 className="w-4 h-4" />
-                    <span className="hidden sm:inline">Edit</span>
+                    <span className="hidden sm:inline">{t('edit')}</span>
                   </button>
                   {isAdmin && (
                     <button
@@ -387,7 +391,7 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
                       className="flex items-center gap-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-white rounded-lg transition-all duration-200 backdrop-blur-sm border border-red-300/20"
                     >
                       <Trash2 className="w-4 h-4" />
-                      <span className="hidden sm:inline">Delete</span>
+                      <span className="hidden sm:inline">{t('delete')}</span>
                     </button>
                   )}
                 </div>
@@ -402,10 +406,10 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
                 <div className="flex items-center gap-3 mb-2">
                   <User className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-900">Personal Info</span>
+                  <span className="text-sm font-medium text-blue-900">{t('Personal Information')}</span>
                 </div>
                 <div className="space-y-2 text-sm">
-                  <div><span className="text-gray-600">Gender:</span> <span className="font-medium text-blue-600">{member.gender}</span></div>
+                  <div><span className="text-gray-600">{t('gender')}:</span> <span className="font-medium text-blue-600">{member.gender}</span></div>
                   <div><span className="text-gray-600">DOB:</span> <span className="font-medium text-blue-600">{new Date(member.birth_date).toLocaleDateString()}</span></div>
                 </div>
               </div>
@@ -416,15 +420,15 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
                   <span className="text-sm font-medium text-green-900">Contact</span>
                 </div>
                 <div className="space-y-2 text-sm">
-                  <div><span className="text-gray-600">Phone:</span> <span className="font-medium text-green-600">{member.phone_no}</span></div>
-                  <div><span className="text-gray-600">Residence:</span> <span className="font-medium text-green-600">{member.residence}</span></div>
+                  <div><span className="text-gray-600">{t('phoneNumber')}:</span> <span className="font-medium text-green-600">{member.phone_no}</span></div>
+                  <div><span className="text-gray-600">{t('residence')}:</span> <span className="font-medium text-green-600">{member.residence}</span></div>
                 </div>
               </div>
 
               <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl p-4 border border-purple-100">
                 <div className="flex items-center gap-3 mb-2">
                   <Home className="w-5 h-5 text-purple-600" />
-                  <span className="text-sm font-medium text-purple-900">Household</span>
+                  <span className="text-sm font-medium text-purple-900">{t('household')}</span>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div><span className="text-gray-600">Family:</span> <span className="font-medium text-purple-600">{member.household}</span></div>
@@ -435,7 +439,7 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
               <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100">
                 <div className="flex items-center gap-3 mb-2">
                   <Award className="w-5 h-5 text-orange-600" />
-                  <span className="text-sm font-medium text-orange-900">Occupation</span>
+                  <span className="text-sm font-medium text-orange-900">{t('occupation')}</span>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="font-medium text-gray-900">{member.occupation}</div>
@@ -446,45 +450,45 @@ export default function ReportTable({ filters, searchQuery }: ReportTableProps) 
             {/* Sacramental Status */}
             <div className="flex flex-wrap gap-3 mb-6">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Baptized:</span>
+                <span className="text-sm text-gray-600">{t('baptized')}:</span>
                 <StatusBadge status={member.baptized} type="baptism" />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Confirmed:</span>
+                <span className="text-sm text-gray-600">{t('confirmed')}:</span>
                 <StatusBadge status={member.confirmed} type="confirmation" />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Marriage:</span>
+                <span className="text-sm text-gray-600">{t('marriage')}:</span>
                 <StatusBadge status={member.marriage_status} type="marriage" />
               </div>
             </div>
 
             {/* Collapsible Sections */}
             <div className="space-y-4">
-              <CollapsibleSection title="Baptism Information" icon={Church}>
+              <CollapsibleSection title={t('baptismInformation')} icon={Church}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InfoItem label="Baptism Status" value={member.baptized} />
-                  <InfoItem label="Date Baptized" value={member.date_baptized} icon={Calendar} />
-                  <InfoItem label="Certificate Number" value={member.baptism_no} />
-                  <InfoItem label="Church" value={member.church_baptized} icon={Church} />
+                  <InfoItem label={t('Baptism Status')} value={member.baptized} />
+                  <InfoItem label={t('Date Baptized')} value={member.date_baptized} icon={Calendar} />
+                  <InfoItem label={t('Certificate Number')} value={member.baptism_no} />
+                  <InfoItem label={t('Church')} value={member.church_baptized} icon={Church} />
                 </div>
               </CollapsibleSection>
 
-              <CollapsibleSection title="Confirmation Information" icon={Award}>
+              <CollapsibleSection title={t('confirmationInformation')} icon={Award}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InfoItem label="Confirmation Status" value={member.confirmed} />
-                  <InfoItem label="Confirmation Date" value={member.confirmation_date} icon={Calendar} />
-                  <InfoItem label="Certificate Number" value={member.confirmation_no} />
-                  <InfoItem label="Church" value={member.church_confirmed} icon={Church} />
+                  <InfoItem label={t('Confirmation Status')} value={member.confirmed} />
+                  <InfoItem label={t('Confirmation Date')} value={member.confirmation_date} icon={Calendar} />
+                  <InfoItem label={t('Certificate Number')} value={member.confirmation_no} />
+                  <InfoItem label={t('Church')} value={member.church_confirmed} icon={Church} />
                 </div>
               </CollapsibleSection>
 
-              <CollapsibleSection title="Marriage Information" icon={Users}>
+              <CollapsibleSection title={t('marriageInformation')} icon={Users}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InfoItem label="Marriage Status" value={member.marriage_status} />
-                  <InfoItem label="Marriage Date" value={member.marriage_date} icon={Calendar} />
-                  <InfoItem label="Certificate Number" value={member.marriage_no} />
-                  <InfoItem label="Church" value={member.church_married} icon={Church} />
+                  <InfoItem label={t('Marriage Status')} value={member.marriage_status} />
+                  <InfoItem label={t('Marriage Date')} value={member.marriage_date} icon={Calendar} />
+                  <InfoItem label={t('Certificate Number')} value={member.marriage_no} />
+                  <InfoItem label={t('Church')} value={member.church_married} icon={Church} />
                 </div>
               </CollapsibleSection>
             </div>

@@ -1,10 +1,9 @@
 'use client';
 
-'use client';
-
 import { useEffect, useState } from 'react';
 import { supabase } from '@/utils/supabase';
 import { Users, Home, Church } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import StatCard from '@/components/StatCard';
 
 interface Stats {
@@ -14,6 +13,7 @@ interface Stats {
 }
 
 export default function DashboardStats() {
+  const { t } = useLanguage();
   const [stats, setStats] = useState<Stats>({
     zones: 0,
     communities: 0,
@@ -69,21 +69,21 @@ export default function DashboardStats() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mb-8 w-full">
       <StatCard
-        title="Zones"
+        title={t('Zones')}
         value={stats.zones}
         icon="activity"
         color="purple"
         trend={{ value: stats.zones, isPositive: true }}
       />
       <StatCard
-        title="Communities"
+        title={t('Communities')}
         value={stats.communities}
         icon="users"
         color="blue"
         trend={{ value: stats.communities, isPositive: true }}
       />
       <StatCard
-        title="Members"
+        title={t('Members')}
         value={stats.members}
         icon="trending"
         color="green"

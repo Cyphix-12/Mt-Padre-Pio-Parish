@@ -1,3 +1,5 @@
+import { useLanguage } from '@/contexts/LanguageContext';
+
 interface Leader {
   id: string;
   jina: string;
@@ -8,6 +10,8 @@ interface Leader {
 }
 
 export default function LeaderTable() {
+  const { t } = useLanguage();
+  
   const leaders: Leader[] = [
     {
       id: '1',
@@ -41,12 +45,12 @@ export default function LeaderTable() {
         <table className="w-full min-w-[600px]">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500">No.</th>
-              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500">Jina</th>
-              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500">Jinsia</th>
-              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500">Jumuiya</th>
-              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500">Kanda</th>
-              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500">Nafasi</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500">{t('No.')}</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500">{t('Jina')}</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500">{t('Jinsia')}</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500">{t('Jumuiya')}</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500">{t('Kanda')}</th>
+              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500">{t('Nafasi')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">

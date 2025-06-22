@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { supabase } from '@/utils/supabase';
 import { X, User, MapPin, Heart, Calendar, Users } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MemberFormProps {
   onClose: () => void;
 }
 
 export default function MemberForm({ onClose }: MemberFormProps) {
+  const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState(0);
@@ -40,12 +42,20 @@ export default function MemberForm({ onClose }: MemberFormProps) {
   });
 
   const sections = [
-    { id: 0, title: 'Personal Information', icon: User, color: 'bg-blue-500' },
-    { id: 1, title: 'Community & Location', icon: MapPin, color: 'bg-green-500' },
-    { id: 2, title: 'Baptism', icon: Heart, color: 'bg-purple-500' },
-    { id: 3, title: 'Confirmation', icon: Calendar, color: 'bg-orange-500' },
-    { id: 4, title: 'Marriage & Membership', icon: Users, color: 'bg-pink-500' }
+    { id: 0, title: t('Personal Information'), icon: User, color: 'bg-blue-500' },
+    { id: 1, title: t('Community & Location'), icon: MapPin, color: 'bg-green-500' },
+    { id: 2, title: t('Baptism'), icon: Heart, color: 'bg-purple-500' },
+    { id: 3, title: t('Confirmation'), icon: Calendar, color: 'bg-orange-500' },
+    { id: 4, title: t('Marriage & Membership'), icon: Users, color: 'bg-pink-500' }
   ];
+
+  const formatDateForDatabase = (dateString: string) => {
+    if (!dateString) return null;
+    // Ensure date is in YYYY-MM-DD format
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return null;
+    return date.toISOString().split('T')[0];
+  };
 
  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,7 +67,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     const emptyFields = requiredFields.filter( (field) => (formData as Record<string, string>)[field] === 'select');
     
     if (emptyFields.length > 0) {
-      setError('Please select all required options marked with (*)');
+      setError(t('Please select all required options marked with (*)'));
       setIsSubmitting(false);
       return;
     }
@@ -65,7 +75,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     // Validate conditional requirements
     if (formData.baptism === 'Baptized') {
       if (!formData.baptismDate || !formData.baptismNumber || !formData.baptismChurch) {
-        setError('Please fill in all baptism details');
+        setError(t('Please fill in all baptism details'));
         setIsSubmitting(false);
         return;
       }
@@ -73,7 +83,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
 
     if (formData.confirmation === 'Confirmed') {
       if (!formData.confirmationDate || !formData.confirmationNumber || !formData.confirmationChurch) {
-        setError('Please fill in all confirmation details');
+        setError(t('Please fill in all confirmation details'));
         setIsSubmitting(false);
         return;
       }
@@ -81,96 +91,122 @@ export default function MemberForm({ onClose }: MemberFormProps) {
 
     if (['Married', 'Separated'].includes(formData.marriage)) {
       if (!formData.marriageDate || !formData.marriageNumber || !formData.marriageChurch) {
-        setError('Please fill in all marriage details');
+        setError(t('Please fill in all marriage details'));
         setIsSubmitting(false);
         return;
       }
     }
 
     if (formData.membershipStatus === 'Inactive - Death' && !formData.endDate) {
-      setError('Please specify the date for inactive membership status');
+      setError(t('Please specify the date for inactive membership status'));
       setIsSubmitting(false);
       return;
     }
     
     try {
+      // Prepare member data with proper formatting
+      const memberData = {
+        name: `${formData.jina_first} ${formData.jina_middle} ${formData.jina_last}`.trim(),
+        gender: formData.gender,
+        household: formData.kaya?.trim() || null,
+        household_position: formData.nafasi_kaya?.trim() || null,
+        birth_date: formatDateForDatabase(formData.tarehe_kuzaliwa),
+        phone_no: formData.phone?.trim() || null,
+        occupation: formData.occupation?.trim() || null,
+        residence: formData.residence
+      };
+
+      console.log('Creating member with data:', memberData);
+
       // Step 1: Create the member record first
-      const { data: memberData, error: memberError } = await supabase
+      const { data: memberRecord, error: memberError } = await supabase
         .from('waumini')
-        .insert([{
-          name: `${formData.jina_first} ${formData.jina_middle} ${formData.jina_last}`.trim(),
-          gender: formData.gender,
-          household: formData.kaya,
-          household_position: formData.nafasi_kaya,
-          birth_date: formData.tarehe_kuzaliwa,
-          phone_no: formData.phone,
-          occupation: formData.occupation,
-          residence: formData.residence
-        }])
+        .insert([memberData])
         .select()
         .single();
 
-      if (memberError) throw memberError;
-      if (!memberData) throw new Error('Failed to create member record');
+      if (memberError) {
+        console.error('Member creation error:', memberError);
+        throw new Error(`Failed to create member: ${memberError.message}`);
+      }
+      if (!memberRecord) throw new Error('Failed to create member record');
+      
+      const memberId = memberRecord.member_id;
+      console.log('Member created with ID:', memberId);
       
       // Step 2: Create the community record
+      const communityData = {
+        member_id: memberId,
+        community: formData.jumuiya?.trim() || null,
+        zone: formData.kanda?.trim() || null,
+        end_of_parish_membership: formData.membershipStatus === 'Inactive - Death' ? formatDateForDatabase(formData.endDate) : null,
+        date_of_death: formData.membershipStatus === 'Inactive - Death' ? formatDateForDatabase(formData.endDate) : null
+      };
+
       const { error: communityError } = await supabase
         .from('community')
-        .insert([{
-          member_id: memberData.member_id,
-          community: formData.jumuiya,
-          zone: formData.kanda,
-          end_of_parish_membership: formData.membershipStatus === 'Inactive - Death' ? formData.endDate : null,
-          date_of_death: formData.membershipStatus === 'Inactive - Death' ? formData.endDate : null
-        }]);
+        .insert([communityData]);
 
-      if (communityError) throw communityError;
-
-      // Step 3: Create baptism record if applicable
-      if (formData.baptism === 'Baptized') {
-        const { error: baptismError } = await supabase
-          .from('baptized')
-          .insert([{
-            member_id: memberData.member_id,
-            baptized: 'Yes',
-            date_baptized: formData.baptismDate,
-            church_baptized: formData.baptismChurch,
-            baptism_no: formData.baptismNumber
-          }]);
-        
-        if (baptismError) throw baptismError;
+      if (communityError) {
+        console.error('Community creation error:', communityError);
+        throw new Error(`Failed to create community record: ${communityError.message}`);
       }
 
-      // Step 4: Create confirmation record if applicable
-      if (formData.confirmation === 'Confirmed') {
-        const { error: confirmationError } = await supabase
-          .from('confirmation')
-          .insert([{
-            member_id: memberData.member_id,
-            confirmed: 'Yes',
-            confirmation_date: formData.confirmationDate,
-            church_confirmed: formData.confirmationChurch,
-            confirmation_no: formData.confirmationNumber
-          }]);
-        
-        if (confirmationError) throw confirmationError;
+      // Step 3: Create baptism record
+      const baptismData = {
+        member_id: memberId,
+        baptized: formData.baptism === 'Baptized' ? 'Yes' : 'No',
+        date_baptized: formData.baptism === 'Baptized' ? formatDateForDatabase(formData.baptismDate) : null,
+        church_baptized: formData.baptism === 'Baptized' ? formData.baptismChurch?.trim() : null,
+        baptism_no: formData.baptism === 'Baptized' ? formData.baptismNumber?.trim() : null
+      };
+
+      const { error: baptismError } = await supabase
+        .from('baptized')
+        .insert([baptismData]);
+      
+      if (baptismError) {
+        console.error('Baptism creation error:', baptismError);
+        throw new Error(`Failed to create baptism record: ${baptismError.message}`);
       }
 
-      // Step 5: Create marriage record if applicable
-      if (formData.marriage !== 'Not Married') {
-        const { error: marriageError } = await supabase
-          .from('married')
-          .insert([{
-            member_id: memberData.member_id,
-            marriage_status: formData.marriage,
-            marriage_date: formData.marriageDate,
-            church_married: formData.marriageChurch,
-            marriage_no: formData.marriageNumber
-          }]);
-        
-        if (marriageError) throw marriageError;
+      // Step 4: Create confirmation record
+      const confirmationData = {
+        member_id: memberId,
+        confirmed: formData.confirmation === 'Confirmed' ? 'Yes' : 'No',
+        confirmation_date: formData.confirmation === 'Confirmed' ? formatDateForDatabase(formData.confirmationDate) : null,
+        church_confirmed: formData.confirmation === 'Confirmed' ? formData.confirmationChurch?.trim() : null,
+        confirmation_no: formData.confirmation === 'Confirmed' ? formData.confirmationNumber?.trim() : null
+      };
+
+      const { error: confirmationError } = await supabase
+        .from('confirmation')
+        .insert([confirmationData]);
+      
+      if (confirmationError) {
+        console.error('Confirmation creation error:', confirmationError);
+        throw new Error(`Failed to create confirmation record: ${confirmationError.message}`);
       }
 
+      // Step 5: Create marriage record
+      const marriageData = {
+        member_id: memberId,
+        marriage_status: formData.marriage,
+        marriage_date: ['Married', 'Separated'].includes(formData.marriage) ? formatDateForDatabase(formData.marriageDate) : null,
+        church_married: ['Married', 'Separated'].includes(formData.marriage) ? formData.marriageChurch?.trim() : null,
+        marriage_no: ['Married', 'Separated'].includes(formData.marriage) ? formData.marriageNumber?.trim() : null
+      };
+
+      const { error: marriageError } = await supabase
+        .from('married')
+        .insert([marriageData]);
+      
+      if (marriageError) {
+        console.error('Marriage creation error:', marriageError);
+        throw new Error(`Failed to create marriage record: ${marriageError.message}`);
+      }
+
+      console.log('Member and all related records created successfully');
       onClose();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred while saving the member';
@@ -190,37 +226,37 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">First Name *</label>
+          <label className="block text-sm font-semibold text-gray-700">{t('First Name')} *</label>
           <input
             type="text"
             name="jina_first"
             value={formData.jina_first}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
-            placeholder="Enter first name"
+            placeholder={t('Enter first name')}
             required
           />
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Middle Name</label>
+          <label className="block text-sm font-semibold text-gray-700">{t('Middle Name')}</label>
           <input
             type="text"
             name="jina_middle"
             value={formData.jina_middle}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
-            placeholder="Enter middle name"
+            placeholder={t('Enter middle name')}
           />
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Last Name *</label>
+          <label className="block text-sm font-semibold text-gray-700">{t('Last Name')} *</label>
           <input
             type="text"
             name="jina_last"
             value={formData.jina_last}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
-            placeholder="Enter last name"
+            placeholder={t('Enter last name')}
             required
           />
         </div>
@@ -228,7 +264,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Gender *</label>
+          <label className="block text-sm font-semibold text-gray-700">{t('gender')} *</label>
           <select
             name="gender"
             value={formData.gender}
@@ -236,13 +272,13 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
             required
           >
-            <option value="select">Select Gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
+            <option value="select">{t('Select Gender')}</option>
+            <option value="Male">{t('male')}</option>
+            <option value="Female">{t('female')}</option>
           </select>
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Date of Birth *</label>
+          <label className="block text-sm font-semibold text-gray-700">{t('Date of Birth')} *</label>
           <input
             type="date"
             name="tarehe_kuzaliwa"
@@ -256,31 +292,31 @@ export default function MemberForm({ onClose }: MemberFormProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Phone Number</label>
+          <label className="block text-sm font-semibold text-gray-700">{t('Phone Number')}</label>
           <input
             type="tel"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
-            placeholder="Enter phone number"
+            placeholder={t('Enter phone number')}
           />
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Occupation</label>
+          <label className="block text-sm font-semibold text-gray-700">{t('Occupation')}</label>
           <input
             type="text"
             name="occupation"
             value={formData.occupation}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
-            placeholder="Enter occupation"
+            placeholder={t('Enter occupation')}
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-gray-700">Residence Status *</label>
+        <label className="block text-sm font-semibold text-gray-700">{t('Residence Status')} *</label>
         <select
           name="residence"
           value={formData.residence}
@@ -288,9 +324,9 @@ export default function MemberForm({ onClose }: MemberFormProps) {
           className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
           required
         >
-          <option value="select">Select Residence Status</option>
-          <option value="Permanent">Permanent</option>
-          <option value="Temporary">Temporary</option>
+          <option value="select">{t('Select Residence Status')}</option>
+          <option value="Permanent">{t('permanent')}</option>
+          <option value="Temporary">{t('temporary')}</option>
         </select>
       </div>
     </div>
@@ -300,26 +336,26 @@ export default function MemberForm({ onClose }: MemberFormProps) {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Community *</label>
+          <label className="block text-sm font-semibold text-gray-700">{t('community')} *</label>
           <input
             type="text"
             name="jumuiya"
             value={formData.jumuiya}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-            placeholder="Enter community name"
+            placeholder={t('Enter community name')}
             required
           />
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Zone *</label>
+          <label className="block text-sm font-semibold text-gray-700">{t('zone')} *</label>
           <input
             type="text"
             name="kanda"
             value={formData.kanda}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
-            placeholder="Enter zone"
+            placeholder={t('Enter zone')}
             required
           />
         </div>
@@ -327,26 +363,26 @@ export default function MemberForm({ onClose }: MemberFormProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Household *</label>
+          <label className="block text-sm font-semibold text-gray-700">{t('household')} *</label>
           <input
             type="text"
             name="kaya"
             value={formData.kaya}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
-            placeholder="Enter household"
+            placeholder={t('Enter household name/ID')}
             required
           />
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Position in Household *</label>
+          <label className="block text-sm font-semibold text-gray-700">{t('Position in Household')} *</label>
           <input
             type="text"
             name="nafasi_kaya"
             value={formData.nafasi_kaya}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
-            placeholder="Enter position"
+            placeholder={t('Enter position')}
             required
           />
         </div>
@@ -357,7 +393,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
   const renderBaptismInfo = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-gray-700">Baptismal Status *</label>
+        <label className="block text-sm font-semibold text-gray-700">{t('Baptism Status')} *</label>
         <select
           name="baptism"
           value={formData.baptism}
@@ -365,18 +401,18 @@ export default function MemberForm({ onClose }: MemberFormProps) {
           className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-700"
           required
         >
-          <option value="select">Select Baptismal Status</option>
-          <option value="Baptized">Baptized</option>
-          <option value="Not Baptized">Not Baptized</option>
+          <option value="select">{t('Select Status')}</option>
+          <option value="Baptized">{t('baptized')}</option>
+          <option value="Not Baptized">Not {t('baptized')}</option>
         </select>
       </div>
 
       {formData.baptism === 'Baptized' && (
         <div className="space-y-6 p-6 bg-purple-50 rounded-xl border border-purple-200">
-          <h4 className="text-lg font-semibold text-purple-800">Baptism Details</h4>
+          <h4 className="text-lg font-semibold text-purple-800">{t('baptismInformation')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Baptism Date *</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('Baptism Date')} *</label>
               <input
                 type="date"
                 name="baptismDate"
@@ -387,27 +423,27 @@ export default function MemberForm({ onClose }: MemberFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Baptism Number *</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('baptismNumber')} *</label>
               <input
                 type="text"
                 name="baptismNumber"
                 value={formData.baptismNumber}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                placeholder="Enter baptism number"
+                placeholder={t('Certificate #')}
                 required={formData.baptism === 'Baptized'}
               />
             </div>
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">Church Baptized *</label>
+            <label className="block text-sm font-semibold text-gray-700">{t('churchBaptized')} *</label>
             <input
               type="text"
               name="baptismChurch"
               value={formData.baptismChurch}
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-700"
-              placeholder="Enter church name"
+              placeholder={t('Church name')}
               required={formData.baptism === 'Baptized'}
             />
           </div>
@@ -419,7 +455,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
   const renderConfirmationInfo = () => (
     <div className="space-y-6">
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-gray-700">Confirmation Status *</label>
+        <label className="block text-sm font-semibold text-gray-700">{t('Confirmation Status')} *</label>
         <select
           name="confirmation"
           value={formData.confirmation}
@@ -427,18 +463,18 @@ export default function MemberForm({ onClose }: MemberFormProps) {
           className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-gray-700"
           required
         >
-          <option value="select">Select Confirmation Status</option>
-          <option value="Confirmed">Confirmed</option>
-          <option value="Not Confirmed">Not Confirmed</option>
+          <option value="select">{t('Select Status')}</option>
+          <option value="Confirmed">{t('confirmed')}</option>
+          <option value="Not Confirmed">Not {t('confirmed')}</option>
         </select>
       </div>
 
       {formData.confirmation === 'Confirmed' && (
         <div className="space-y-6 p-6 bg-orange-50 rounded-xl border border-orange-200">
-          <h4 className="text-lg font-semibold text-orange-800">Confirmation Details</h4>
+          <h4 className="text-lg font-semibold text-orange-800">{t('confirmationInformation')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Confirmation Date *</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('Confirmation Date')} *</label>
               <input
                 type="date"
                 name="confirmationDate"
@@ -449,27 +485,27 @@ export default function MemberForm({ onClose }: MemberFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Confirmation Number *</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('confirmationNumber')} *</label>
               <input
                 type="text"
                 name="confirmationNumber"
                 value={formData.confirmationNumber}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                placeholder="Enter confirmation number"
+                placeholder={t('Certificate #')}
                 required={formData.confirmation === 'Confirmed'}
               />
             </div>
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">Church Confirmed *</label>
+            <label className="block text-sm font-semibold text-gray-700">{t('churchConfirmed')} *</label>
             <input
               type="text"
               name="confirmationChurch"
               value={formData.confirmationChurch}
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-gray-700"
-              placeholder="Enter church name"
+              placeholder={t('Church name')}
               required={formData.confirmation === 'Confirmed'}
             />
           </div>
@@ -481,9 +517,9 @@ export default function MemberForm({ onClose }: MemberFormProps) {
   const renderMarriageAndMembership = () => (
     <div className="space-y-8">
       <div className="space-y-6">
-        <h4 className="text-lg font-semibold text-pink-800">Marriage Information</h4>
+        <h4 className="text-lg font-semibold text-pink-800">{t('marriageInformation')}</h4>
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-700">Marital Status *</label>
+          <label className="block text-sm font-semibold text-gray-700">{t('Marital Status')} *</label>
           <select
             name="marriage"
             value={formData.marriage}
@@ -491,21 +527,21 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
             required
           >
-            <option value="select">Select Marital Status</option>
-            <option value="Divorced">Divorced</option>
-            <option value="Married">Married</option>
-            <option value="Not Married">Not Married</option>
-            <option value="Separated">Separated</option>
-            <option value="Widowed">Widowed</option>
+            <option value="select">{t('Select Marital Status')}</option>
+            <option value="Divorced">{t('divorced')}</option>
+            <option value="Married">{t('married')}</option>
+            <option value="Not Married">{t('notMarried')}</option>
+            <option value="Separated">{t('separated')}</option>
+            <option value="Widowed">{t('widowed')}</option>
           </select>
         </div>
 
         {['Married', 'Separated'].includes(formData.marriage) && (
           <div className="space-y-6 p-6 bg-pink-50 rounded-xl border border-pink-200">
-            <h5 className="text-md font-semibold text-pink-800">Marriage Details</h5>
+            <h5 className="text-md font-semibold text-pink-800">{t('marriageInformation')}</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700">Marriage Date *</label>
+                <label className="block text-sm font-semibold text-gray-700">{t('Marriage Date')} *</label>
                 <input
                   type="date"
                   name="marriageDate"
@@ -516,27 +552,27 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700">Marriage Number *</label>
+                <label className="block text-sm font-semibold text-gray-700">{t('marriageNumber')} *</label>
                 <input
                   type="text"
                   name="marriageNumber"
                   value={formData.marriageNumber}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                  placeholder="Enter marriage number"
+                  placeholder={t('Certificate #')}
                   required={['Married', 'Separated'].includes(formData.marriage)}
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Church Married *</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('churchMarried')} *</label>
               <input
                 type="text"
                 name="marriageChurch"
                 value={formData.marriageChurch}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                placeholder="Enter church name"
+                placeholder={t('Church name')}
                 required={['Married', 'Separated'].includes(formData.marriage)}
               />
             </div>
@@ -545,10 +581,10 @@ export default function MemberForm({ onClose }: MemberFormProps) {
       </div>
 
       <div className="space-y-6">
-        <h4 className="text-lg font-semibold text-pink-800">Membership Status</h4>
+        <h4 className="text-lg font-semibold text-pink-800">{t('membershipStatus')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">Membership Status *</label>
+            <label className="block text-sm font-semibold text-gray-700">{t('Membership Status')} *</label>
             <select
               name="membershipStatus"
               value={formData.membershipStatus}
@@ -556,15 +592,15 @@ export default function MemberForm({ onClose }: MemberFormProps) {
               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-gray-700"
               required
             >
-              <option value="select">Select Membership Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive - Death">Inactive - Death</option>
-              <option value="Inactive - Moved">Inactive - Moved</option>
+              <option value="select">{t('Select Membership Status')}</option>
+              <option value="Active">{t('active')}</option>
+              <option value="Inactive - Death">{t('Inactive - Death')}</option>
+              <option value="Inactive - Moved">{t('Inactive - Moved')}</option>
             </select>
           </div>
           {formData.membershipStatus === 'Inactive - Death' && (
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Date *</label>
+              <label className="block text-sm font-semibold text-gray-700">{t('Date')} *</label>
               <input
                 type="date"
                 name="endDate"
@@ -604,8 +640,8 @@ export default function MemberForm({ onClose }: MemberFormProps) {
         <div className="w-80 bg-gradient-to-br from-slate-900 to-slate-800 p-6 flex flex-col max-h-screen overflow-y-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-xl font-bold text-white">Member Registration</h2>
-              <p className="text-slate-300 text-sm mt-1">Complete all sections</p>
+              <h2 className="text-xl font-bold text-white">{t('memberInformation')}</h2>
+              <p className="text-slate-300 text-sm mt-1">{t('Complete all sections')}</p>
             </div>
             <button 
               onClick={onClose}
@@ -643,7 +679,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
           </nav>
 
           <div className="mt-6 p-4 bg-slate-700 rounded-xl">
-            <div className="text-slate-300 text-xs mb-2">Progress</div>
+            <div className="text-slate-300 text-xs mb-2">{t('Progress')}</div>
             <div className="w-full bg-slate-600 rounded-full h-2">
               <div 
                 className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
@@ -651,7 +687,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
               ></div>
             </div>
             <div className="text-slate-400 text-xs mt-2">
-              {activeSection + 1} of {sections.length} sections
+              {activeSection + 1} of {sections.length} {t('sections')}
             </div>
           </div>
         </div>
@@ -692,7 +728,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              Previous
+              {t('Previous')}
             </button>
             
             <div className="flex gap-3">
@@ -701,7 +737,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                 onClick={onClose}
                 className="px-6 py-3 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-all duration-200"
               >
-                Cancel
+                {t('Cancel')}
               </button>
               
               {activeSection === sections.length - 1 ? (
@@ -714,7 +750,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                       : 'hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 shadow-lg'
                   }`}
                 >
-                  {isSubmitting ? 'Saving...' : 'Save Member'}
+                  {isSubmitting ? t('saving') : t('Save Member')}
                 </button>
               ) : (
                 <button
@@ -722,7 +758,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
                   onClick={() => setActiveSection(Math.min(sections.length - 1, activeSection + 1))}
                   className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
                 >
-                  Next
+                  {t('Next')}
                 </button>
               )}
             </div>

@@ -1,8 +1,11 @@
+import { useLanguage } from '@/contexts/LanguageContext';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import SettingsContent from '@/components/SettingsContent';
 
 export default function SettingsPage() {
+  const { t } = useLanguage();
+  
   return (
     <div className="flex min-h-screen bg-white relative">
       <Sidebar />
@@ -12,7 +15,7 @@ export default function SettingsPage() {
         
         <main className="p-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <h1 className="text-3xl font-bold text-accent">Settings</h1>
+            <h1 className="text-3xl font-bold text-accent">{t('Settings')}</h1>
           </div>
           
           <SettingsContent />

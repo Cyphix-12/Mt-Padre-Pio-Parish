@@ -2,6 +2,7 @@ import { Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/utils/supabase';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface EditMemberModalProps {
   member: any;
@@ -40,6 +41,7 @@ interface MemberData {
 }
 
 export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, onUpdate }: EditMemberModalProps) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     gender: 'select',
@@ -213,6 +215,14 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
     return null;
   };
 
+  const formatDateForDatabase = (dateString: string) => {
+    if (!dateString) return null;
+    // Ensure date is in YYYY-MM-DD format
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return null;
+    return date.toISOString().split('T')[0];
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -227,74 +237,92 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
     }
 
     try {
+      const memberId = member.member_id || member.id;
+      
+      // Prepare data with proper formatting
+      const memberUpdateData = {
+        name: formData.name.trim(),
+        gender: formData.gender,
+        birth_date: formatDateForDatabase(formData.birth_date),
+        residence: formData.residence,
+        phone_no: formData.phone_no?.trim() || null,
+        occupation: formData.occupation?.trim() || null,
+        household: formData.household?.trim() || null,
+        household_position: formData.household_position?.trim() || null
+      };
+
+      console.log('Updating member with data:', memberUpdateData);
+
       // Update waumini table
       const { error: memberError } = await supabase
         .from('waumini')
-        .update({
-          name: formData.name,
-          gender: formData.gender,
-          birth_date: formData.birth_date || null,
-          residence: formData.residence,
-          phone_no: formData.phone_no || null,
-          occupation: formData.occupation || null,
-          household: formData.household || null,
-          household_position: formData.household_position || null
-        })
-        .eq('member_id', member.member_id || member.id);
+        .update(memberUpdateData)
+        .eq('member_id', memberId);
 
-      if (memberError) throw memberError;
+      if (memberError) {
+        console.error('Member update error:', memberError);
+        throw new Error(`Failed to update member: ${memberError.message}`);
+      }
 
       // Update related tables using upsert
       const promises = [];
 
       // Community information
+      const communityData = {
+        member_id: memberId,
+        community: formData.community?.trim() || null,
+        zone: formData.zone?.trim() || null,
+        end_of_parish_membership: formData.membershipStatus === 'Inactive - Death' ? formatDateForDatabase(formData.endDate) : null,
+        date_of_death: formData.membershipStatus === 'Inactive - Death' ? formatDateForDatabase(formData.endDate) : null
+      };
+
       promises.push(
-        supabase.from('community').upsert({
-          member_id: member.member_id || member.id,
-          community: formData.community || null,
-          zone: formData.zone || null,
-          end_of_parish_membership: formData.membershipStatus === 'Inactive - Death' ? formData.endDate : null,
-          date_of_death: formData.membershipStatus === 'Inactive - Death' ? formData.endDate : null
-        }, {
+        supabase.from('community').upsert(communityData, {
           onConflict: 'member_id'
         })
       );
 
       // Baptism information
+      const baptismData = {
+        member_id: memberId,
+        baptized: formData.baptized,
+        date_baptized: formatDateForDatabase(formData.date_baptized),
+        baptism_no: formData.baptism_no?.trim() || null,
+        church_baptized: formData.church_baptized?.trim() || null
+      };
+
       promises.push(
-        supabase.from('baptized').upsert({
-          member_id: member.member_id || member.id,
-          baptized: formData.baptized,
-          date_baptized: formData.date_baptized || null,
-          baptism_no: formData.baptism_no || null,
-          church_baptized: formData.church_baptized || null
-        }, {
+        supabase.from('baptized').upsert(baptismData, {
           onConflict: 'member_id'
         })
       );
 
       // Confirmation information
+      const confirmationData = {
+        member_id: memberId,
+        confirmed: formData.confirmed,
+        confirmation_date: formatDateForDatabase(formData.confirmation_date),
+        confirmation_no: formData.confirmation_no?.trim() || null,
+        church_confirmed: formData.church_confirmed?.trim() || null
+      };
+
       promises.push(
-        supabase.from('confirmation').upsert({
-          member_id: member.member_id || member.id,
-          confirmed: formData.confirmed,
-          confirmation_date: formData.confirmation_date || null,
-          confirmation_no: formData.confirmation_no || null,
-          church_confirmed: formData.church_confirmed || null
-        }, {
+        supabase.from('confirmation').upsert(confirmationData, {
           onConflict: 'member_id'
         })
       );
 
       // Marriage information
+      const marriageData = {
+        member_id: memberId,
+        marriage_status: formData.marriage_status,
+        marriage_date: formatDateForDatabase(formData.marriage_date),
+        marriage_no: formData.marriage_no?.trim() || null,
+        church_married: formData.church_married?.trim() || null
+      };
+
       promises.push(
-        supabase.from('married').upsert({
-          member_id: member.member_id || member.id,
-          marriage_status: formData.marriage_status,
-          marriage_date: formData.marriage_date || null,
-          marriage_no: formData.marriage_no || null,
-          church_married: formData.church_married || null
-        }, {
+        supabase.from('married').upsert(marriageData, {
           onConflict: 'member_id'
         })
       );
@@ -306,9 +334,11 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
       for (const result of results) {
         if (result.error) {
           console.error('Error updating related data:', result.error);
-          throw new Error('Failed to update complete member record');
+          throw new Error(`Failed to update complete member record: ${result.error.message}`);
         }
       }
+
+      console.log('Member updated successfully');
 
       // Call the update function to refresh data
       await onUpdate();
@@ -342,10 +372,10 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
             <div className="flex justify-between items-center">
               <div>
                 <Dialog.Title className="text-2xl font-bold text-white">
-                  Edit Member Information
+                  {t('editMemberInformation')}
                 </Dialog.Title>
                 <p className="text-blue-100 mt-1 text-sm">
-                  Update member details and church records
+                  {t('updateMemberDetails')}
                 </p>
               </div>
               <button
@@ -365,8 +395,8 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                 <div className="text-center space-y-4">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-700">Loading Member Data</h3>
-                    <p className="text-sm text-gray-500">Fetching member information...</p>
+                    <h3 className="text-lg font-semibold text-gray-700">{t('loadingMemberData')}</h3>
+                    <p className="text-sm text-gray-500">{t('fetchingMemberInfo')}</p>
                   </div>
                 </div>
               </div>
@@ -382,14 +412,14 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                     </svg>
                   </div>
                   <div className="ml-3 flex-1">
-                    <h3 className="text-sm font-medium text-red-800">Failed to Load Member Data</h3>
+                    <h3 className="text-sm font-medium text-red-800">{t('failedToLoadData')}</h3>
                     <p className="text-sm text-red-700 mt-1">{fetchError}</p>
                     <div className="mt-4">
                       <button
                         onClick={handleRetryFetch}
                         className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                       >
-                        Retry
+                        {t('retry')}
                       </button>
                     </div>
                   </div>
@@ -424,23 +454,23 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">Basic Information</h3>
+                    <h3 className="text-xl font-semibold text-gray-900">{t('basicInformation')}</h3>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Full Name *</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Full Name')} *</label>
                       <input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
-                        placeholder="Enter full name"
+                        placeholder={t('Enter full name')}
                         required
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Gender *</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('gender')} *</label>
                       <select
                         name="gender"
                         value={formData.gender}
@@ -448,13 +478,13 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
                         required
                       >
-                        <option value="select">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
+                        <option value="select">{t('Select Gender')}</option>
+                        <option value="Male">{t('male')}</option>
+                        <option value="Female">{t('female')}</option>
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Date of Birth')}</label>
                       <input
                         type="date"
                         name="birth_date"
@@ -464,7 +494,7 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Residence *</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('residence')} *</label>
                       <select
                         name="residence"
                         value={formData.residence}
@@ -472,13 +502,13 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
                         required
                       >
-                        <option value="select">Select Residence</option>
-                        <option value="Permanent">Permanent</option>
-                        <option value="Temporary">Temporary</option>
+                        <option value="select">{t('Select Residence Status')}</option>
+                        <option value="Permanent">{t('permanent')}</option>
+                        <option value="Temporary">{t('temporary')}</option>
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Phone Number')}</label>
                       <input
                         type="tel"
                         name="phone_no"
@@ -489,14 +519,14 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Occupation</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Occupation')}</label>
                       <input
                         type="text"
                         name="occupation"
                         value={formData.occupation}
                         onChange={handleChange}
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
-                        placeholder="Enter occupation"
+                        placeholder={t('Enter occupation')}
                       />
                     </div>
                   </div>
@@ -511,22 +541,22 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 15v-4a2 2 0 012-2h4a2 2 0 012 2v4" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">Household Information</h3>
+                    <h3 className="text-xl font-semibold text-gray-900">{t('householdInformation')}</h3>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Household</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('household')}</label>
                       <input
                         type="text"
                         name="household"
                         value={formData.household}
                         onChange={handleChange}
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
-                        placeholder="Enter household name/ID"
+                        placeholder={t('Enter household name/ID')}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Position in Household</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Position in Household')}</label>
                       <input
                         type="text"
                         name="household_position"
@@ -548,29 +578,29 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">Community Information</h3>
+                    <h3 className="text-xl font-semibold text-gray-900">{t('communityInformation')}</h3>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Community</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('community')}</label>
                       <input
                         type="text"
                         name="community"
                         value={formData.community}
                         onChange={handleChange}
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
-                        placeholder="Enter community name"
+                        placeholder={t('Enter community name')}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Zone</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('zone')}</label>
                       <input
                         type="text"
                         name="zone"
                         value={formData.zone}
                         onChange={handleChange}
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
-                        placeholder="Enter zone"
+                        placeholder={t('Enter zone')}
                       />
                     </div>
                   </div>
@@ -584,11 +614,11 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">Baptism Information</h3>
+                    <h3 className="text-xl font-semibold text-gray-900">{t('baptismInformation')}</h3>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Baptism Status *</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Baptism Status')} *</label>
                       <select
                         name="baptized"
                         value={formData.baptized}
@@ -596,13 +626,13 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
                         required
                       >
-                        <option value="select">Select Status</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
+                        <option value="select">{t('Select Status')}</option>
+                        <option value="Yes">{t('yes')}</option>
+                        <option value="No">{t('no')}</option>
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Baptism Date</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Baptism Date')}</label>
                       <input
                         type="date"
                         name="date_baptized"
@@ -612,25 +642,25 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Certificate Number</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Certificate Number')}</label>
                       <input
                         type="text"
                         name="baptism_no"
                         value={formData.baptism_no}
                         onChange={handleChange}
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
-                        placeholder="Certificate #"
+                        placeholder={t('Certificate #')}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Church Baptized</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Church Baptized')}</label>
                       <input
                         type="text"
                         name="church_baptized"
                         value={formData.church_baptized}
                         onChange={handleChange}
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
-                        placeholder="Church name"
+                        placeholder={t('Church name')}
                       />
                     </div>
                   </div>
@@ -644,11 +674,11 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">Confirmation Information</h3>
+                    <h3 className="text-xl font-semibold text-gray-900">{t('confirmationInformation')}</h3>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Confirmation Status *</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Confirmation Status')} *</label>
                       <select
                         name="confirmed"
                         value={formData.confirmed}
@@ -656,13 +686,13 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
                         required
                       >
-                        <option value="select">Select Status</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
+                        <option value="select">{t('Select Status')}</option>
+                        <option value="Yes">{t('yes')}</option>
+                        <option value="No">{t('no')}</option>
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Confirmation Date</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Confirmation Date')}</label>
                       <input
                         type="date"
                         name="confirmation_date"
@@ -672,25 +702,25 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Certificate Number</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Certificate Number')}</label>
                       <input
                         type="text"
                         name="confirmation_no"
                         value={formData.confirmation_no}
                         onChange={handleChange}
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
-                        placeholder="Certificate #"
+                        placeholder={t('Certificate #')}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Church Confirmed</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Church Confirmed')}</label>
                       <input
                         type="text"
                         name="church_confirmed"
                         value={formData.church_confirmed}
                         onChange={handleChange}
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
-                        placeholder="Church name"
+                        placeholder={t('Church name')}
                       />
                     </div>
                   </div>
@@ -704,11 +734,11 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">Marriage Information</h3>
+                    <h3 className="text-xl font-semibold text-gray-900">{t('marriageInformation')}</h3>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Marriage Status *</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Marriage Status')} *</label>
                       <select
                         name="marriage_status"
                         value={formData.marriage_status}
@@ -716,16 +746,16 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
                         required
                       >
-                        <option value="select">Select Status</option>
-                        <option value="Not Married">Not Married</option>
-                        <option value="Married">Married</option>
-                        <option value="Divorced">Divorced</option>
-                        <option value="Widowed">Widowed</option>
-                        <option value="Separated">Separated</option>
+                        <option value="select">{t('Select Status')}</option>
+                        <option value="Not Married">{t('Not Married')}</option>
+                        <option value="Married">{t('Married')}</option>
+                        <option value="Divorced">{t('Divorced')}</option>
+                        <option value="Widowed">{t('Widowed')}</option>
+                        <option value="Separated">{t('Separated')}</option>
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Marriage Date</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Marriage Date')}</label>
                       <input
                         type="date"
                         name="marriage_date"
@@ -735,25 +765,25 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Certificate Number</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Certificate Number')}</label>
                       <input
                         type="text"
                         name="marriage_no"
                         value={formData.marriage_no}
                         onChange={handleChange}
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
-                        placeholder="Certificate #"
+                        placeholder={t('Certificate #')}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Church Married</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Church Married')}</label>
                       <input
                         type="text"
                         name="church_married"
                         value={formData.church_married}
                         onChange={handleChange}
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
-                        placeholder="Church name"
+                        placeholder={t('Church name')}
                       />
                     </div>
                   </div>
@@ -767,11 +797,11 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">Membership Status</h3>
+                    <h3 className="text-xl font-semibold text-gray-900">{t('membershipStatus')}</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Membership Status *</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('Membership Status')} *</label>
                       <select
                         name="membershipStatus"
                         value={formData.membershipStatus}
@@ -779,15 +809,15 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-0 transition-colors"
                         required
                       >
-                        <option value="select">Select Membership Status</option>
-                        <option value="Active">Active</option>
-                        <option value="Inactive - Death">Inactive - Death</option>
-                        <option value="Inactive - Moved">Inactive - Moved</option>
+                        <option value="select">{t('Select Membership Status')}</option>
+                        <option value="Active">{t('Active')}</option>
+                        <option value="Inactive - Death">{t('Inactive - Death')}</option>
+                        <option value="Inactive - Moved">{t('Inactive - Moved')}</option>
                       </select>
                     </div>
                     {formData.membershipStatus === 'Inactive - Death' && (
                       <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">Date *</label>
+                        <label className="block text-sm font-medium text-gray-700">{t('Date')} *</label>
                         <input
                           type="date"
                           name="endDate"
@@ -814,7 +844,7 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                   className="px-8 py-3 border-2 border-gray-300 rounded-xl text-gray-700 hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 font-medium transition-all duration-200 text-center"
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {t('Cancel')}
                 </button>
                 <button
                   type="submit"
@@ -828,10 +858,10 @@ export default function EditMemberModal({ member, isOpen, onSuccess, onCancel, o
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Saving...
+                      {t('saving')}
                     </span>
                   ) : (
-                    'Save Changes'
+                    t('Save Changes')
                   )}
                 </button>
               </div>
