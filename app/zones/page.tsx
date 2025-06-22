@@ -1,3 +1,5 @@
+'use client';
+
 import { FunnelIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Header from '@/components/Header';
