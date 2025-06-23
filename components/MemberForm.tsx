@@ -342,7 +342,7 @@ export default function MemberForm({ onClose }: MemberFormProps) {
             name="jumuiya"
             value={formData.jumuiya}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
             placeholder={t('Enter community name')}
             required
           />
