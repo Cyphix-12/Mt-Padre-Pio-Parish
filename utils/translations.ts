@@ -208,6 +208,7 @@ export const translations: Translations = {
   'Save Member': { en: 'Save Member', sw: 'Hifadhi Mwanachama' },
   'Cancel': { en: 'Cancel', sw: 'Ghairi' },
   'Save Changes': { en: 'Save Changes', sw: 'Hifadhi Mabadiliko' },
+  'add member': { en: 'Add Member', sw: 'Ongeza Muumini' },
 
   // Form sections
   'Personal Information': { en: 'Personal Information', sw: 'Taarifa za Kibinafsi' },
