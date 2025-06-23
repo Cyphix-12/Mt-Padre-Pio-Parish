@@ -15,9 +15,9 @@ export const translations: Translations = {
 
   // Parish info
   'Parokia ya': { en: 'Parish of', sw: 'Parokia ya' },
-  'Mt. Padre Pio': { en: 'Mt. Padre Pio', sw: 'Mt. Padre Pio' },
-  parishName: { en: 'Mt. Padre Pio Parish', sw: 'Parokia ya Mt. Padre Pio' },
-  'System Online': { en: 'System Online', sw: 'Mfumo Unaendesha' },
+  'Mt. Padre Pio': { en: 'St. Padre Pio', sw: 'Mt. Padre Pio' },
+  parishName: { en: 'St. Padre Pio Parish', sw: 'Parokia ya Mt. Padre Pio' },
+  'System Online': { en: 'System Online', sw: 'Mfumo Unaendeshwa' },
 
   // Common terms
   name: { en: 'Name', sw: 'Jina' },
@@ -25,11 +25,12 @@ export const translations: Translations = {
   male: { en: 'Male', sw: 'Mwanaume' },
   female: { en: 'Female', sw: 'Mwanamke' },
   dateOfBirth: { en: 'Date of Birth', sw: 'Tarehe ya Kuzaliwa' },
-  phoneNumber: { en: 'Phone Number', sw: 'Nambari ya Simu' },
+  phoneNumber: { en: 'Phone Number', sw: 'Namba ya Simu' },
   occupation: { en: 'Occupation', sw: 'Kazi' },
   residence: { en: 'Residence', sw: 'Makazi' },
   permanent: { en: 'Permanent', sw: 'Ya Kudumu' },
   temporary: { en: 'Temporary', sw: 'Ya Muda' },
+   contact: { en: 'Contact', sw: 'Mawasiliano' },
 
   // Church terms
   community: { en: 'Community', sw: 'Jumuiya' },
@@ -41,14 +42,14 @@ export const translations: Translations = {
   baptism: { en: 'Baptism', sw: 'Ubatizo' },
   baptized: { en: 'Baptized', sw: 'Amebatizwa' },
   baptismDate: { en: 'Baptism Date', sw: 'Tarehe ya Ubatizo' },
-  baptismNumber: { en: 'Baptism Number', sw: 'Nambari ya Ubatizo' },
+  baptismNumber: { en: 'Baptism Number', sw: 'Namba ya Ubatizo' },
   churchBaptized: { en: 'Church Baptized', sw: 'Kanisa la Ubatizo' },
 
-  confirmation: { en: 'Confirmation', sw: 'Uthibitisho' },
-  confirmed: { en: 'Confirmed', sw: 'Amethibitishwa' },
-  confirmationDate: { en: 'Confirmation Date', sw: 'Tarehe ya Uthibitisho' },
-  confirmationNumber: { en: 'Confirmation Number', sw: 'Nambari ya Uthibitisho' },
-  churchConfirmed: { en: 'Church Confirmed', sw: 'Kanisa la Uthibitisho' },
+  confirmation: { en: 'Confirmation', sw: 'Kipaimara' },
+  confirmed: { en: 'Confirmed', sw: 'Amepokea' },
+  confirmationDate: { en: 'Confirmation Date', sw: 'Tarehe ya Kipaimara' },
+  confirmationNumber: { en: 'Confirmation Number', sw: 'Namba ya Kipaimara' },
+  churchConfirmed: { en: 'Church Confirmed', sw: 'Kanisa la Kipaimara' },
 
   marriage: { en: 'Marriage', sw: 'Ndoa' },
   marriageStatus: { en: 'Marriage Status', sw: 'Hali ya Ndoa' },
@@ -56,9 +57,9 @@ export const translations: Translations = {
   notMarried: { en: 'Not Married', sw: 'Hajaoa/Hajaolewa' },
   divorced: { en: 'Divorced', sw: 'Ametalakiana' },
   widowed: { en: 'Widowed', sw: 'Mjane' },
-  separated: { en: 'Separated', sw: 'Wametenganishwa' },
+  separated: { en: 'Separated', sw: 'Wametengana' },
   marriageDate: { en: 'Marriage Date', sw: 'Tarehe ya Ndoa' },
-  marriageNumber: { en: 'Marriage Number', sw: 'Nambari ya Ndoa' },
+  marriageNumber: { en: 'Marriage Number', sw: 'Namba ya Ndoa' },
   churchMarried: { en: 'Church Married', sw: 'Kanisa la Ndoa' },
 
   // Status
@@ -94,21 +95,21 @@ export const translations: Translations = {
   saving: { en: 'Saving...', sw: 'Inahifadhi...' },
   success: { en: 'Success', sw: 'Imefanikiwa' },
   error: { en: 'Error', sw: 'Hitilafu' },
-  noDataFound: { en: 'No data found', sw: 'Hakuna data iliyopatikana' },
-  'No members found': { en: 'No members found', sw: 'Hakuna wanachama waliopatikana' },
+  noDataFound: { en: 'No data found', sw: 'Hakuna taarifa iliyopatikana' },
+  'No members found': { en: 'No members found', sw: 'Hakuna waumini waliopatikana' },
   'Try adjusting your search criteria or filters.': { 
     en: 'Try adjusting your search criteria or filters.', 
     sw: 'Jaribu kubadilisha vigezo vya utafutaji au vichujio.' 
   },
 
   // Parish specific
-  membershipStatus: { en: 'Membership Status', sw: 'Hali ya Uanachama' },
-  memberInformation: { en: 'Member Information', sw: 'Taarifa za Mwanachama' },
+  membershipStatus: { en: 'Membership Status', sw: 'Hali ya Uumini' },
+  memberInformation: { en: 'Member Information', sw: 'Taarifa za Muumini' },
   basicInformation: { en: 'Basic Information', sw: 'Taarifa za Msingi' },
   householdInformation: { en: 'Household Information', sw: 'Taarifa za Kaya' },
   communityInformation: { en: 'Community Information', sw: 'Taarifa za Jumuiya' },
   baptismInformation: { en: 'Baptism Information', sw: 'Taarifa za Ubatizo' },
-  confirmationInformation: { en: 'Confirmation Information', sw: 'Taarifa za Uthibitisho' },
+  confirmationInformation: { en: 'Confirmation Information', sw: 'Taarifa za Kipaimara' },
   marriageInformation: { en: 'Marriage Information', sw: 'Taarifa za Ndoa' },
 
   // Validation messages
@@ -116,15 +117,15 @@ export const translations: Translations = {
   genderRequired: { en: 'Gender is required', sw: 'Jinsia inahitajika' },
   residenceRequired: { en: 'Residence is required', sw: 'Makazi yanahitajika' },
   baptismStatusRequired: { en: 'Baptism status is required', sw: 'Hali ya ubatizo inahitajika' },
-  confirmationStatusRequired: { en: 'Confirmation status is required', sw: 'Hali ya uthibitisho inahitajika' },
+  confirmationStatusRequired: { en: 'Confirmation status is required', sw: 'Hali ya kipaimara inahitajika' },
   marriageStatusRequired: { en: 'Marriage status is required', sw: 'Hali ya ndoa inahitajika' },
 
   // Header messages
-  editMemberInformation: { en: 'Edit Member Information', sw: 'Hariri Taarifa za Mwanachama' },
-  updateMemberDetails: { en: 'Update member details and church records', sw: 'Sasisha taarifa za mwanachama na rekodi za kanisa' },
-  loadingMemberData: { en: 'Loading Member Data', sw: 'Inapakia Taarifa za Mwanachama' },
-  fetchingMemberInfo: { en: 'Fetching member information...', sw: 'Inapata taarifa za mwanachama...' },
-  failedToLoadData: { en: 'Failed to Load Member Data', sw: 'Imeshindwa Kupakia Taarifa za Mwanachama' },
+  editMemberInformation: { en: 'Edit Member Information', sw: 'Hariri Taarifa za Muumini' },
+  updateMemberDetails: { en: 'Update member details and church records', sw: 'Sasisha taarifa za muumini na rekodi za kanisa' },
+  loadingMemberData: { en: 'Loading Member Data', sw: 'Inapakia Taarifa za Muumini' },
+  fetchingMemberInfo: { en: 'Fetching member information...', sw: 'Inapata taarifa za muumini...' },
+  failedToLoadData: { en: 'Failed to Load Member Data', sw: 'Imeshindwa Kupakia Taarifa za Muumini' },
   retry: { en: 'Retry', sw: 'Jaribu Tena' },
   saveChanges: { en: 'Save Changes', sw: 'Hifadhi Mabadiliko' },
 
@@ -137,14 +138,14 @@ export const translations: Translations = {
   'Nafasi': { en: 'Position', sw: 'Nafasi' },
 
   // Search and filter
-  'Search members by name...': { en: 'Search members by name...', sw: 'Tafuta wanachama kwa jina...' },
+  'Search members by name...': { en: 'Search members by name...', sw: 'Tafuta waumini kwa jina...' },
   'Filters': { en: 'Filters', sw: 'Vichujio' },
   'Apply Filters': { en: 'Apply Filters', sw: 'Tumia Vichujio' },
 
   // Stats
   'Zones': { en: 'Zones', sw: 'Kanda' },
   'Communities': { en: 'Communities', sw: 'Jumuiya' },
-  'Members': { en: 'Members', sw: 'Wanachama' },
+  'Members': { en: 'Members', sw: 'Waumini' },
 
   // Additional form fields
   'Full Name': { en: 'Full Name', sw: 'Jina Kamili' },
@@ -152,28 +153,28 @@ export const translations: Translations = {
   'Middle Name': { en: 'Middle Name', sw: 'Jina la Kati' },
   'Last Name': { en: 'Last Name', sw: 'Jina la Mwisho' },
   'Date of Birth': { en: 'Date of Birth', sw: 'Tarehe ya Kuzaliwa' },
-  'Phone Number': { en: 'Phone Number', sw: 'Nambari ya Simu' },
+  'Phone Number': { en: 'Phone Number', sw: 'Namba ya Simu' },
   'Occupation': { en: 'Occupation', sw: 'Kazi' },
   'Residence Status': { en: 'Residence Status', sw: 'Hali ya Makazi' },
   'Position in Household': { en: 'Position in Household', sw: 'Nafasi katika Kaya' },
   'Baptism Status': { en: 'Baptism Status', sw: 'Hali ya Ubatizo' },
   'Baptism Date': { en: 'Baptism Date', sw: 'Tarehe ya Ubatizo' },
-  'Certificate Number': { en: 'Certificate Number', sw: 'Nambari ya Cheti' },
+  'Certificate Number': { en: 'Certificate Number', sw: 'Namba ya Cheti' },
   'Church Baptized': { en: 'Church Baptized', sw: 'Kanisa la Ubatizo' },
-  'Confirmation Status': { en: 'Confirmation Status', sw: 'Hali ya Uthibitisho' },
-  'Confirmation Date': { en: 'Confirmation Date', sw: 'Tarehe ya Uthibitisho' },
-  'Church Confirmed': { en: 'Church Confirmed', sw: 'Kanisa la Uthibitisho' },
+  'Confirmation Status': { en: 'Confirmation Status', sw: 'Hali ya Kipaimara' },
+  'Confirmation Date': { en: 'Confirmation Date', sw: 'Tarehe ya Kipaimara' },
+  'Church Confirmed': { en: 'Church Confirmed', sw: 'Kanisa la kipaimara' },
   'Marital Status': { en: 'Marital Status', sw: 'Hali ya Ndoa' },
   'Marriage Date': { en: 'Marriage Date', sw: 'Tarehe ya Ndoa' },
   'Church Married': { en: 'Church Married', sw: 'Kanisa la Ndoa' },
-  'Membership Status': { en: 'Membership Status', sw: 'Hali ya Uanachama' },
+  'Membership Status': { en: 'Membership Status', sw: 'Hali ya Uumini' },
 
   // Placeholders
   'Enter full name': { en: 'Enter full name', sw: 'Ingiza jina kamili' },
   'Enter first name': { en: 'Enter first name', sw: 'Ingiza jina la kwanza' },
   'Enter middle name': { en: 'Enter middle name', sw: 'Ingiza jina la kati' },
   'Enter last name': { en: 'Enter last name', sw: 'Ingiza jina la mwisho' },
-  'Enter phone number': { en: 'Enter phone number', sw: 'Ingiza nambari ya simu' },
+  'Enter phone number': { en: 'Enter phone number', sw: 'Ingiza namba ya simu' },
   'Enter occupation': { en: 'Enter occupation', sw: 'Ingiza kazi' },
   'Enter household name/ID': { en: 'Enter household name/ID', sw: 'Ingiza jina/kitambulisho cha kaya' },
   'Enter position': { en: 'Enter position', sw: 'Ingiza nafasi' },
@@ -187,14 +188,14 @@ export const translations: Translations = {
   'Select Residence Status': { en: 'Select Residence Status', sw: 'Chagua Hali ya Makazi' },
   'Select Status': { en: 'Select Status', sw: 'Chagua Hali' },
   'Select Marital Status': { en: 'Select Marital Status', sw: 'Chagua Hali ya Ndoa' },
-  'Select Membership Status': { en: 'Select Membership Status', sw: 'Chagua Hali ya Uanachama' },
+  'Select Membership Status': { en: 'Select Membership Status', sw: 'Chagua Hali ya Uumini' },
 
   // Marriage status options
   'Not Married': { en: 'Not Married', sw: 'Hajaoa/Hajaolewa' },
   'Married': { en: 'Married', sw: 'Ameoa/Ameolewa' },
   'Divorced': { en: 'Divorced', sw: 'Ametalakiana' },
   'Widowed': { en: 'Widowed', sw: 'Mjane' },
-  'Separated': { en: 'Separated', sw: 'Wametenganishwa' },
+  'Separated': { en: 'Separated', sw: 'Wametengana' },
 
   // Membership status options
   'Active': { en: 'Active', sw: 'Hai' },
@@ -213,7 +214,7 @@ export const translations: Translations = {
   'Community & Location': { en: 'Community & Location', sw: 'Jumuiya na Mahali' },
   'Baptism': { en: 'Baptism', sw: 'Ubatizo' },
   'Confirmation': { en: 'Confirmation', sw: 'Uthibitisho' },
-  'Marriage & Membership': { en: 'Marriage & Membership', sw: 'Ndoa na Uanachama' },
+  'Marriage & Membership': { en: 'Marriage & Membership', sw: 'Ndoa na Uumini' },
 
   // Progress
   'Complete all sections': { en: 'Complete all sections', sw: 'Kamilisha sehemu zote' },
@@ -222,9 +223,9 @@ export const translations: Translations = {
 
   // Error messages
   'Please fill in all baptism details': { en: 'Please fill in all baptism details', sw: 'Tafadhali jaza maelezo yote ya ubatizo' },
-  'Please fill in all confirmation details': { en: 'Please fill in all confirmation details', sw: 'Tafadhali jaza maelezo yote ya uthibitisho' },
+  'Please fill in all confirmation details': { en: 'Please fill in all confirmation details', sw: 'Tafadhali jaza maelezo yote ya kipaimara' },
   'Please fill in all marriage details': { en: 'Please fill in all marriage details', sw: 'Tafadhali jaza maelezo yote ya ndoa' },
-  'Please specify the date for inactive membership status': { en: 'Please specify the date for inactive membership status', sw: 'Tafadhali bainisha tarehe ya hali ya uanachama usioendelea' },
+  'Please specify the date for inactive membership status': { en: 'Please specify the date for inactive membership status', sw: 'Tafadhali bainisha tarehe ya hali ya uumini usioendelea' },
   'Please select all required options marked with (*)': { en: 'Please select all required options marked with (*)', sw: 'Tafadhali chagua chaguzi zote zinazohitajika zilizo na alama ya (*)' },
 
   // Date field
